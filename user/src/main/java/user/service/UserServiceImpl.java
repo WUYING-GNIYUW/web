@@ -22,7 +22,6 @@ import java.util.*;
 public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements UserService {
     private final UserMapper userMapper;
     private final UserConstant userConstant;
-    private final JwtConstant jwtConstant;
 
     public Result<Boolean> addUser(User adduser) {
         if(getById(adduser.getUserid())==null){
@@ -61,27 +60,5 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
             throw new AddUserException("账号不存在");
         }
     }
-    public Result<String> login(User loginUser) {
-        User user = getById(loginUser.getUserid());
-        if(user == null) {
-            throw new LoginException("帐号不存在");
-        }
-        if(Objects.equals(user.getAvailableState(), userConstant.unavailable)) {
-            throw new LoginException("该账号已经锁定");
-        }
-        if(user.getPassword().equals(loginUser.getPassword())) {
-            Map<String, Object> claims = new HashMap<>();
-            claims.put(jwtConstant.getThread_userid_key(),user.getUserid());
-            claims.put(jwtConstant.getThread_authority_key(), "userddd");
-            String token = Jwts.builder()
-                     .signWith(SignatureAlgorithm.HS256, jwtConstant.getSigning_key())
-                     .setClaims(claims)
-                     .setExpiration(new Date(System.currentTimeMillis() + 3*3600*1000))
-                     .compact();
-            return Result.<String>builder().data(jwtConstant.getToken_key() + token).build();
-        }
-        else {
-            throw new LoginException("密码错误");
-        }
-    }
+
 }

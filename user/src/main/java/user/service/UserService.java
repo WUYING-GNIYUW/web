@@ -11,6 +11,5 @@ public interface UserService extends IService<User> {
     Result<Boolean> addUser(User addUser);
     Result<List<User>> getUsers(User queryUser);
     Result<Boolean> removeUser(User user);
-    Result<String> login(User user);
 
 }
