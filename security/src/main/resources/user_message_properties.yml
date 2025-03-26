@@ -1,0 +1,21 @@
+message:
+  user:
+    success:
+      addSuccessMsg:
+      getSuccessMsg:
+      updateSuccessMsg:
+      removeSuccessMsg:
+      loginSuccessMsg:
+    fail:
+      addFailMsg:
+      getFailMsg:
+      updateFailMsg:
+      removeFailMsg:
+      loginFailMsg:
+    error:
+      c:
+user:
+  available: 1
+  unavailable: 0
+  online: 1
+  offline:

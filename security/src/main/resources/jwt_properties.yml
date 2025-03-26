@@ -1,0 +1,5 @@
+jwt:
+  token_key: "token"
+  signing_key: "WuYing"
+  thread_userID_key: "userID"
+  thread_authority_key: "authority"
