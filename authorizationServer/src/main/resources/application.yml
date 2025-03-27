@@ -1,0 +1,39 @@
+spring:
+  config:
+    import: classpath:jwt_properties.yml, classpath:user_message_properties.yml
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23liuoVd504lJJEM9H
+            client-secret: 8ad0852ebaa229302c121952c7c40e6901f0639c
+            authorization-grant-type: authorization_code
+            scope: read:user
+            redirect-uri: http://localhost:8080/login/oauth2/code/github
+            provider: github
+# Swagger配置
+# springdoc-openapi项目配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.wuying.controller
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+server:
+  port: 8080
+logging:
+  level:
+    org:
+      springframework:
+        authorizationServer: DEBUG
