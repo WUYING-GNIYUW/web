@@ -4,7 +4,6 @@ package authorizationServer.security;
 import authorizationServer.constant.UserConstant;
 import authorizationServer.exception.LoginException;
 import authorizationServer.pojo.User;
-import authorizationServer.service.UserService;
 import authorizationServer.thread.UseridThread;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +24,7 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsServ
     private final UserConstant userConstant;
     @Override
     public void createUser(UserDetails user) {
-        userService.save(User.builder()
-                        .username(user.getUsername())
-                        .password(passwordEncoder.encode(user.getPassword()))
-                        .build());
+
     }
 
     @Override
@@ -53,24 +49,13 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsServ
 
     @Override
     public UserDetails loadUserByUsername(String userid) throws UsernameNotFoundException {
-        User user = loadUserByUserid(userid);
-        if(!Objects.equals(user.getAvailableState(), userConstant.available)) {
-            throw new LoginException("帐号已锁定");//TODO:LoadAccountException("账号不存在")
-        }
         UseridThread.set(userid);
         return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUserid())
-                .password(user.getPassword())
-                .accountLocked(!Objects.equals(user.getAvailableState(), userConstant.available))
-                .roles(user.getRoles().split(","))
+                .withUsername("user.getUserid()")
                 .build();
     }
-    public User loadUserByUserid(String userid) throws UsernameNotFoundException {
-        User user = userService.getById(userid);
-        if(user == null) {
-            throw new LoginException("帐号不存在");//TODO:LoadAccountException("账号不存在")
-        }
-        return user;
+    public void loadUserByUserid(String userid) throws UsernameNotFoundException {
+
     }
 
 }

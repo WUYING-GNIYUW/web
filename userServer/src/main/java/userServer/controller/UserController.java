@@ -34,13 +34,4 @@ public class UserController {
     public Result removeUser(@RequestBody User user) {
         return userServiceImpl.removeUser(user);
     }
-    @PostMapping("/login")
-    public Result login(@RequestBody User user) {
-        return userServiceImpl.login(user);
-    }
-    @GetMapping
-    public String test() {
-        System.out.println("ok");
-        return "OK";
-    }
 }

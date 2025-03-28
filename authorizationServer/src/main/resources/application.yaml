@@ -1,0 +1,48 @@
+application:
+  name: authorizationServer
+
+
+server:
+  port: 8081
+  address: 127.0.0.1
+
+spring:
+  config:
+    import: "classpath:jwt_properties.yml", "classpath:user_message_properties.yml", "nacos:authorization.yaml"
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    check-template-location: true
+
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+
+  security:
+    oauth2:
+      authorizationserver:
+        client:
+          gatewayClient:
+            registration:
+              client-id: "gateway"
+              client-secret: "{noop}000000"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "authorization_code"
+                - "refresh_token"
+              redirect-uris:
+                - "http://localhost:8080/login/oauth2/code/gatewayClient"
+              post-logout-redirect-uris:
+                - "http://localhost:8080/home"
+              scopes:
+                - "openid"
+                - "profile"
+            require-authorization-consent: true
+
+logging:
+  level:
+    org:
+      springframework:
+        authorizationServer: DEBUG

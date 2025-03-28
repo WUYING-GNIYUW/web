@@ -21,15 +21,15 @@ public class JwtUtil {
         dbuserDetailsManager = (DBUserDetailsManager) SpringContextUtil.getBean(DBUserDetailsManager.class);
     }
     public static String createJwtToken(){
-        User user = dbuserDetailsManager.loadUserByUserid(UseridThread.get());
-        Map<String,Object> claims = new HashMap<>();
-//        claims.put();
+//        User user = dbuserDetailsManager.loadUserByUserid(UseridThread.get());
+//        Map<String,Object> claims = new HashMap<>();
+////        claims.put();
         return Jwts.builder()
-                .setSubject(user.getUserid())
-                .signWith(SignatureAlgorithm.HS256, jwtConstant.getSigning_key())
-                .setClaims(claims)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 3*3600*1000))
+//                .setSubject(user.getUserid())
+//                .signWith(SignatureAlgorithm.HS256, jwtConstant.getSigning_key())
+//                .setClaims(claims)
+//                .setIssuedAt(new Date(System.currentTimeMillis()))
+//                .setExpiration(new Date(System.currentTimeMillis() + 3*3600*1000))
                 .compact();
     }
     public static Claims getClamis(String token) {

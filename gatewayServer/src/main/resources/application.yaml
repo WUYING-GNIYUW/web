@@ -1,0 +1,47 @@
+application:
+  name: gatewayServer
+
+server:
+  port: 8080
+
+spring:
+  config:
+    import: "nacos:gateway.yaml"
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+    gateway:
+      routes:
+        - id: user
+          uri: lb://userServer
+          predicates:
+            - Path=/user/**
+#        - id: webflux
+#          uri: lb://webflux-resource
+#          predicates:
+#            - Path=/webflux/**
+#            -
+  security:
+    oauth2:
+      client:
+        registration:
+          gateway:
+            client-id: "gateway"
+            client-secret: "{noop}000000"
+            authorization-grant-type:
+              - "authorization_code"
+              - "refresh_token"
+            redirect-uri: "http://localhost:8080/login/oauth2/code/gatewayClient"
+            scope:
+              - "openid"
+              - "profile"
+            provider: "authorizationServer"
+        provider:
+          authorizationServer:
+            issuer-uri: https://localhost:8081
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
