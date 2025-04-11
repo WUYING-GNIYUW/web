@@ -1,4 +1,4 @@
-package authorizationServer.security.handler.logoutHandler;
+package gatewayServer.security.logoutHandler;
 
 import com.alibaba.fastjson2.JSONObject;
 import common.pojo.Result;

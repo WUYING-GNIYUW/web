@@ -20,6 +20,5 @@ public class MyAccessDeniedHandler implements AccessDeniedHandler {
                 .data(null)
                 .build());
         response.setContentType("text/html;charset=utf-8");
-        response.getWriter().println((jsonResult));
     }
 }

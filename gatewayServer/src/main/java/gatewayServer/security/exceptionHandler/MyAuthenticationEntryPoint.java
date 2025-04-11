@@ -1,4 +1,4 @@
-package authorizationServer.security.handler.exceptionHandler;
+package gatewayServer.security.exceptionHandler;
 
 import com.alibaba.fastjson2.JSONObject;
 import common.pojo.Result;

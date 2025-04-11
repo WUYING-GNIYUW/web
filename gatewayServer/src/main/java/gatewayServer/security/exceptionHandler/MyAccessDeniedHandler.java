@@ -1,25 +1,24 @@
-package authorizationServer.security.handler.logoutHandler;
+package gatewayServer.security.exceptionHandler;
 
 import com.alibaba.fastjson2.JSONObject;
 import common.pojo.Result;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 import java.io.IOException;
 
-public class MyLogoutSuccessHandler implements LogoutSuccessHandler {
+public class MyAccessDeniedHandler implements AccessDeniedHandler {
     @Override
-    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         String jsonResult = JSONObject.toJSONString(Result
                 .<String>builder()
                 .code(null)
-                .message(null)
+                .message("denied")
                 .data(null)
                 .build());
-
         response.setContentType("text/html;charset=utf-8");
     }
 }

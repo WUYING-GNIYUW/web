@@ -1,5 +1,6 @@
 package authorizationServer.security;
 
+import cn.hutool.core.bean.BeanUtil;
 import common.feign.clients.UserClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,9 @@ import org.springframework.security.oauth2.server.authorization.oidc.authenticat
 import common.pojo.User;
 import org.springframework.stereotype.Component;
 
+
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 @Component
@@ -19,8 +22,8 @@ public class CustomUserInfoMapper implements Function<OidcUserInfoAuthentication
     public OidcUserInfo apply(OidcUserInfoAuthenticationContext context) {
         // 从上下文获取用户标识
         String userId = context.getAuthorization().getPrincipalName();
-        //List<User> users = userClient.getUsers(User.builder().userId(userId).build())
-        //return users.get(0);
-        return OidcUserInfo.builder().build();
+        List<User> users = userClient.getUsers(User.builder().userId(userId).build()).getData();
+        Map<String,Object> userMap = BeanUtil.beanToMap(users.get(0));
+        return OidcUserInfo.builder().claims(claims -> claims.putAll(userMap)).build();
     }
 }

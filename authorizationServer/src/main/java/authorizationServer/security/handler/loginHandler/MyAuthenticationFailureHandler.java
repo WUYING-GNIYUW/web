@@ -16,11 +16,10 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
         String jsonResult = JSONObject.toJSONString(Result
                 .<String>builder()
                 .code(null)
-                .message("3")
+                .message("authentication failed")
                 .data(null)
                 .build());
-        System.out.println(exception.getMessage());
+        response.sendRedirect("/Login");
         response.setContentType("text/html;charset=utf-8");
-        response.getWriter().println((jsonResult));
     }
 }

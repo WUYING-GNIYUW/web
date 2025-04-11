@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,7 +37,6 @@ import java.util.function.Function;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class SpringSecurityConfigure {
     final CustomUserInfoMapper customUserInfoMapper;
-    final DBUserDetailsManager dbUserDetailsManager;
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -61,25 +61,26 @@ public class SpringSecurityConfigure {
                         authorize
                                 .anyRequest().authenticated()
                 );
+        http.exceptionHandling(exception ->
+                        exception
+                                //.authenticationEntryPoint(new MyAuthenticationEntryPoint())
+                                .accessDeniedHandler(new MyAccessDeniedHandler()));
 
 
-//        http.formLogin(login ->
-//                login
-//                        .loginPage("/login")
-//                        .permitAll()
-//                        .usernameParameter("userid")
-//                        .passwordParameter("password")
-//                        .successHandler(new MyAuthenticationSuccessHandler())
-//                        .failureHandler(new MyAuthenticationFailureHandler())
-//        );
+        http.formLogin(login ->
+                login
+                        .loginPage("/login")
+                        .permitAll()
+                        .usernameParameter("userid")
+                        .passwordParameter("password")
+                        .successHandler(new MyAuthenticationSuccessHandler())
+                        .failureHandler(new MyAuthenticationFailureHandler())
+        );
 //        http.logout(logout ->
 //                logout.permitAll()
 //                        .logoutSuccessHandler(new MyLogoutSuccessHandler())
 //        );
-//        http.exceptionHandling(exception ->
-//                exception
-//                        //.authenticationEntryPoint(new MyAuthenticationEntryPoint())
-//                        .accessDeniedHandler(new MyAccessDeniedHandler())
+
 //        );
         //http.addFilterBefore(new ParseJwtFilter(), UsernamePasswordAuthenticationFilter.class);
         //http.addFilterAfter(new SetJwtFilter(), UsernamePasswordAuthenticationFilter.class);
