@@ -1,6 +1,7 @@
 package authorizationServer.security.handler.loginHandler;
 
 import com.alibaba.fastjson2.JSONObject;
+import common.pojo.Result;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
