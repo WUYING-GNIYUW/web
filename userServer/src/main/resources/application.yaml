@@ -5,7 +5,7 @@ server:
 spring:
 
   application:
-    name: userServer
+    name: user_server
 
   cloud:
     nacos:
@@ -23,6 +23,10 @@ spring:
     password: "000000"
     driver-class-name: "com.mysql.cj.jdbc.Driver"
     port: 3306
+
+    mybatis-plus:
+      configuration:
+        map-underscore-to-camel-case: true
 
   security:
     oauth2:

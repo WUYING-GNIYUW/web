@@ -1,4 +1,4 @@
-package authorizationServer.pojo;
+package common.pojo;
 
 import lombok.Builder;
 import lombok.Data;

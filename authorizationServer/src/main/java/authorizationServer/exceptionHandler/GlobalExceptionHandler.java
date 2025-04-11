@@ -1,7 +1,6 @@
 package authorizationServer.exceptionHandler;
 
 import authorizationServer.exception.LoginException;
-import authorizationServer.pojo.Result;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 

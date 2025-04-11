@@ -1,5 +1,5 @@
 application:
-  name: authorizationServer
+  name: authorization-server
 
 
 server:

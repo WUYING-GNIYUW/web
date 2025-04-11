@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping("/user")
@@ -23,7 +25,7 @@ public class UserController {
         return userServiceImpl.addUser(addUser);
     }
     @PostMapping("/get")
-    public Result getUsers(@RequestBody User queryUser) {
+    public Result<List<User>> getUsers(@RequestBody User queryUser) {
         return userServiceImpl.getUsers(queryUser);
     }
     @PutMapping("/update")

@@ -47,8 +47,7 @@ public class SpringSecurityConfigure {
         ).httpBasic(Customizer.withDefaults());
 
         // 开启OAuth2登录
-        http.oauth2Login()
-                .
+        //http.oauth2Login()
 
 
         // 设置当前服务为资源服务，解析请求头中的token

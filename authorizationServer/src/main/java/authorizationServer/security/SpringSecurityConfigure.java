@@ -13,61 +13,81 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcUserInfoAuthenticationContext;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+
+import java.util.function.Function;
 
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class SpringSecurityConfigure {
-    private final DefaultOAuth2UserService oAuth2UserService;
+    final CustomUserInfoMapper customUserInfoMapper;
+    final DBUserDetailsManager dbUserDetailsManager;
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
     @Bean
+    public UserDetailsService userDetailsService(DBUserDetailsManager dbUserDetailsManager) {
+        return dbUserDetailsManager;
+    }
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorize ->
-                authorize
-                        //.requestMatchers("/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()//.permitAll()//
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
+        http
+                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+                .with(authorizationServerConfigurer, (authorizationServer) ->
+                        authorizationServer.oidc(oidc -> oidc
+                                        .userInfoEndpoint(userinfo ->
+                                                userinfo.userInfoMapper(customUserInfoMapper)
+                                        )
+                        )
+                )
+                .authorizeHttpRequests((authorize) ->
+                        authorize
+                                .anyRequest().authenticated()
+                );
 
-        )
-                //.formLogin(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults());
 
-        http.formLogin(login ->
-                login
-                        .loginPage("/login")
-                        .permitAll()
-                        .usernameParameter("userid")
-                        .passwordParameter("password")
-                        .successHandler(new MyAuthenticationSuccessHandler())
-                        .failureHandler(new MyAuthenticationFailureHandler())
-        );
-        http.logout(logout ->
-                logout.permitAll()
-                        .logoutSuccessHandler(new MyLogoutSuccessHandler())
-        );
-        http.exceptionHandling(exception ->
-                exception
-                        //.authenticationEntryPoint(new MyAuthenticationEntryPoint())
-                        .accessDeniedHandler(new MyAccessDeniedHandler())
-        );
+//        http.formLogin(login ->
+//                login
+//                        .loginPage("/login")
+//                        .permitAll()
+//                        .usernameParameter("userid")
+//                        .passwordParameter("password")
+//                        .successHandler(new MyAuthenticationSuccessHandler())
+//                        .failureHandler(new MyAuthenticationFailureHandler())
+//        );
+//        http.logout(logout ->
+//                logout.permitAll()
+//                        .logoutSuccessHandler(new MyLogoutSuccessHandler())
+//        );
+//        http.exceptionHandling(exception ->
+//                exception
+//                        //.authenticationEntryPoint(new MyAuthenticationEntryPoint())
+//                        .accessDeniedHandler(new MyAccessDeniedHandler())
+//        );
         //http.addFilterBefore(new ParseJwtFilter(), UsernamePasswordAuthenticationFilter.class);
         //http.addFilterAfter(new SetJwtFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.oauth2Login(oauth -> oauth
-                        .loginPage("/login")
-            .userInfoEndpoint(userInfo -> userInfo
-                        .userService(oAuth2UserService)));
+
         http.cors(Customizer.withDefaults());
         http.csrf(AbstractHttpConfigurer::disable);
+
+
         return http.build();
     }
 

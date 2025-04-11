@@ -1,11 +1,14 @@
-package authorizationServer.pojo;
+package common.pojo;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Builder;
 import lombok.Data;
 
 @Builder
 @Data
 public class User {
-    private String userid;
+    @TableId(type = IdType.AUTO)
+    private String userId;
     private String password;
     private String username;
     private Integer availableState;

@@ -1,6 +1,5 @@
 package authorizationServer.security;
 
-import authorizationServer.pojo.User;
 import authorizationServer.util.OAuth2UserConverterUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

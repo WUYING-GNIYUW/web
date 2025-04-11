@@ -2,8 +2,6 @@ package authorizationServer.security;
 
 
 import authorizationServer.constant.UserConstant;
-import authorizationServer.exception.LoginException;
-import authorizationServer.pojo.User;
 import authorizationServer.thread.UseridThread;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +11,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 
 @Component
