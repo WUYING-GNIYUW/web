@@ -28,7 +28,7 @@ spring:
         client:
           gatewayClient:
             registration:
-              client-id: "gateway"
+              client-id: "gatewayClient"
               client-secret: "{noop}000000"
               client-authentication-methods:
                 - "client_secret_basic"

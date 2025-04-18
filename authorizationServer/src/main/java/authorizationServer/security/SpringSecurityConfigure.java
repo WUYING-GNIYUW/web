@@ -61,8 +61,8 @@ public class SpringSecurityConfigure {
                         .permitAll()
                         .usernameParameter("userid")
                         .passwordParameter("password")
-                        .successHandler(new MyAuthenticationSuccessHandler())
-                        .failureHandler(new MyAuthenticationFailureHandler())
+                        //.successHandler(new MyAuthenticationSuccessHandler())
+                        //.failureHandler(new MyAuthenticationFailureHandler())
         );
 //        http.logout(logout ->
 //                logout.permitAll()

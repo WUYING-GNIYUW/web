@@ -29,19 +29,17 @@ public class SpringSecurityConfigure {
         http.authorizeExchange((authorize) -> authorize
                 //TODO requestMatcher(forWebFlux)
                 .anyExchange().authenticated()
-        ).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+        );
 
         http.oauth2Login(oauth2Login -> oauth2Login
                 .authenticationSuccessHandler(new CustomAuthenticationSuccessHandler(requestCache))
                 .authenticationFailureHandler(new CustomAuthenticationFailureHandler())
         ).requestCache(Cache -> Cache.
                 requestCache(requestCache));
-        http.exceptionHandling(exception -> exception.
-                authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+        http.exceptionHandling(exception -> exception
+                //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .accessDeniedHandler(new CustomAccessDeniedHandler())// 未认证用户访问受保护资源.accessDeniedHandler(accessDeniedHandler)       // 已认证用户权限不足
         );
-        http.cors(Customizer.withDefaults());
-        http.csrf(Customizer.withDefaults());
         return http.build();
     }
 

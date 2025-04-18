@@ -13,7 +13,7 @@ spring:
     gateway:
       routes:
         - id: user
-          uri: lb://userServer
+          uri: lb://user-server
           predicates:
             - Path=/user/**
 #        - id: webflux
@@ -26,8 +26,8 @@ spring:
       client:
         registration:
           gateway:
-            client-id: "gateway"
-            client-secret: "{noop}000000"
+            client-id: "gatewayClient"
+            client-secret: "000000"
             authorization-grant-type:
               - "authorization_code"
               - "refresh_token"
@@ -39,12 +39,18 @@ spring:
         provider:
           authorizationServer:
             issuer-uri: "http://127.0.0.1:8081"
-      resourceserver:
-        jwt:
-          issuer-uri: http://127.0.0.1:8081
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://127.0.0.1:8081
+#
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        security: DEBUG
 
 logging:
   level:
-    org:
-      springframework:
-        security: DEBUG
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.security: DEBUG
+    reactor.netty: DEBUG

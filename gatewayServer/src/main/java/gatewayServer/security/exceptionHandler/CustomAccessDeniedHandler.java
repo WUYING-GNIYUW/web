@@ -12,7 +12,7 @@ public class CustomAccessDeniedHandler implements ServerAccessDeniedHandler {
     public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
         // 1. 获取 Referer 头（来源页面 URL）
         String referer = exchange.getRequest().getHeaders().getFirst("Referer");
-
+        System.out.println("1");
         // 2. 验证 Referer 是否有效（防止开放重定向漏洞）
         if (isValidReferer(referer)) {
             exchange.getResponse().setStatusCode(null);

@@ -21,6 +21,7 @@ public class CustomAuthenticationSuccessHandler implements ServerAuthenticationS
     @Override
     public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
+        System.out.println("4");
         return requestCache.getRedirectUri(webFilterExchange.getExchange())
                 .defaultIfEmpty(URI.create("/home")) // 无缓存时跳转默认页
                 .flatMap(redirectUri -> {

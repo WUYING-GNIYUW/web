@@ -15,6 +15,7 @@ public class CustomAuthenticationFailureHandler implements ServerAuthenticationF
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
+        System.out.println("3");
         return Mono.fromRunnable(() -> {
             String errorMsg = "登录失败: " + exception.getMessage();
             exchange.getResponse().setStatusCode(null);

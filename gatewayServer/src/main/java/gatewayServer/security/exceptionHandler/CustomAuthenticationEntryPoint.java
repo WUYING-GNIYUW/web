@@ -13,9 +13,10 @@ import java.nio.charset.StandardCharsets;
 public class CustomAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
+        System.out.println("2");
         return Mono.fromRunnable(() -> {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            exchange.getResponse().getHeaders().setLocation(URI.create("/login"));
+            //exchange.getResponse().getHeaders().setLocation(URI.create("/login"));
         });
     }
 }
