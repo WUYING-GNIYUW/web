@@ -5,7 +5,7 @@ server:
 spring:
 
   application:
-    name: user_server
+    name: user-server
 
   cloud:
     nacos:
@@ -15,7 +15,7 @@ spring:
     import:
     - "classpath:jwt_properties.yml"
     - "classpath:user_message_properties.yml"
-    - "optional:nacos:user.yaml"
+    - "nacos:user-server.yaml"
 
   datasource:
     url: "jdbc:mysql://localhost:3306/wuying?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"

@@ -8,7 +8,10 @@ server:
 
 spring:
   config:
-    import: "classpath:jwt_properties.yml", "classpath:user_message_properties.yml", "nacos:authorization.yaml"
+    import:
+    - "classpath:jwt_properties.yml"
+    - "classpath:user_message_properties.yml"
+    #- "nacos:authorization-server.yaml"
 
   thymeleaf:
     prefix: classpath:/templates/

@@ -5,7 +5,6 @@ package authorizationServer.security;
 import authorizationServer.security.handler.exceptionHandler.MyAccessDeniedHandler;
 import authorizationServer.security.handler.loginHandler.MyAuthenticationFailureHandler;
 import authorizationServer.security.handler.loginHandler.MyAuthenticationSuccessHandler;
-import authorizationServer.security.handler.logoutHandler.MyLogoutSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,9 +20,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
-
-import java.util.function.Function;
-
 
 @Configuration
 @EnableWebSecurity
@@ -58,7 +54,6 @@ public class SpringSecurityConfigure {
                         exception
                                 //.authenticationEntryPoint(new MyAuthenticationEntryPoint())
                                 .accessDeniedHandler(new MyAccessDeniedHandler()));
-
 
         http.formLogin(login ->
                 login

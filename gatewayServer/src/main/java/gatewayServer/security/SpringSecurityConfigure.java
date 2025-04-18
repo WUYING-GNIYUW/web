@@ -29,7 +29,7 @@ public class SpringSecurityConfigure {
         http.authorizeExchange((authorize) -> authorize
                 //TODO requestMatcher(forWebFlux)
                 .anyExchange().authenticated()
-        ).httpBasic(Customizer.withDefaults());
+        ).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
         http.oauth2Login(oauth2Login -> oauth2Login
                 .authenticationSuccessHandler(new CustomAuthenticationSuccessHandler(requestCache))
@@ -44,28 +44,5 @@ public class SpringSecurityConfigure {
         http.csrf(Customizer.withDefaults());
         return http.build();
     }
-//        http.formLogin(login ->
-//                login
-//                        .loginPage("/login")
-//                        .permitAll()
-//                        .usernameParameter("userid")
-//                        .passwordParameter("password")
-//                        .successHandler(new MyAuthenticationSuccessHandler())
-//                        .failureHandler(new MyAuthenticationFailureHandler())
-//        );
-//        http.logout(logout ->
-//                logout.permitAll()
-//                        .logoutSuccessHandler(new MyLogoutSuccessHandler())
-//        );
 
-        //http.addFilterBefore(new ParseJwtFilter(), UsernamePasswordAuthenticationFilter.class);
-        //http.addFilterAfter(new SetJwtFilter(), UsernamePasswordAuthenticationFilter.class);
-
-
-    @Bean//重新配置防火墙过滤器，允许url带有特殊字符
-    public HttpFirewall allowUrlSemicolonHttpFirewall() {
-        StrictHttpFirewall firewall = new StrictHttpFirewall();
-        firewall.setAllowSemicolon(true);
-        return firewall;
-    }
 }
