@@ -15,7 +15,7 @@ public class UserController {
     private final UserServiceImpl userServiceImpl;
 
     @GetMapping("/test/{id}")
-    public Result getbyidJustFortest(@PathVariable(value = "id") String id) {
+    public Result<User> getByIdJustForTest(@PathVariable(value = "id") String id) {
         User user = userServiceImpl.getById(id);
         return Result.<User>builder().data(user).build();
     }

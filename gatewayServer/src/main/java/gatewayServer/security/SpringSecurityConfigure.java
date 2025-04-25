@@ -33,7 +33,7 @@ public class SpringSecurityConfigure {
         // 开启全局验证
         http.authorizeExchange((authorize) -> authorize
                 .pathMatchers(
-                        "/api/**","error/**","/favicon.ico"
+                        "/api/**","error/**","/favicon.ico","/api/**"
                 ).permitAll()
                 .anyExchange().authenticated()
         );

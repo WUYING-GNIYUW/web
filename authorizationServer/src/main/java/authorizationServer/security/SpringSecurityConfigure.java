@@ -8,7 +8,9 @@ import authorizationServer.security.handler.loginHandler.MyAuthenticationSuccess
 import cn.hutool.core.lang.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
@@ -37,7 +39,6 @@ import org.springframework.security.web.server.savedrequest.WebSessionServerRequ
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 @Configuration
-@EnableWebSecurity
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class SpringSecurityConfigure {
     //final CustomUserInfoMapper customUserInfoMapper;

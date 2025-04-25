@@ -16,6 +16,10 @@ spring:
           uri: lb://user-server
           predicates:
             - Path=/user/**
+        - id: user-api
+          uri: lb://user-server
+          predicates:
+            - Path=/user/**
 #        - id: oauth2-callback
 #          uri: //localhost:8080
 #          predicates:

@@ -1,7 +1,7 @@
 package authorizationServer.security;
 
 
-//import common.feign.clients.UserClient;
+import common.feign.clients.UserClient;
 import common.pojo.Result;
 import common.pojo.User;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class DBUserDetailsManager implements UserDetailsManager, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
-    //private final UserClient userclient;
+    private final UserClient userclient;
     @Override
     public void createUser(UserDetails user) {
 
@@ -48,9 +48,9 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsServ
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        //Result<List<User>> userInfo = userclient.getUsers(User.builder().userId(userId).build());
-        //User userInDB = userInfo.getData().get(0);
-        User userInDB = User.builder().userId("wuying").password(passwordEncoder.encode("000000")).roles("ADMIN").build();
+        Result<List<User>> userInfo = userclient.getUsers(User.builder().userId(userId).build());
+        User userInDB = userInfo.getData().get(0);
+        //User userInDB = User.builder().userId("wuying").password(passwordEncoder.encode("000000")).roles("ADMIN").build();
         return org.springframework.security.core.userdetails.User
                 .withUsername(userInDB.getUserId())
                 .password(userInDB.getPassword())
