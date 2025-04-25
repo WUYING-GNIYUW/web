@@ -1,2 +1,5 @@
 application:
   name: common
+logging:
+  level:
+    common: DEBUG

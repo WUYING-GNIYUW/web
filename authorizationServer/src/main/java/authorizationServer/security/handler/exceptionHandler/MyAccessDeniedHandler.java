@@ -19,6 +19,8 @@ public class MyAccessDeniedHandler implements AccessDeniedHandler {
                 .message("denied")
                 .data(null)
                 .build());
+        System.out.println(accessDeniedException.getCause());
+        System.out.println(accessDeniedException.getMessage());
         response.setContentType("text/html;charset=utf-8");
     }
 }

@@ -13,12 +13,15 @@ import java.io.IOException;
 public class MyAuthenticationFailureHandler implements AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+        String b = request.getParameter("userId");
         String jsonResult = JSONObject.toJSONString(Result
                 .<String>builder()
                 .code(null)
                 .message("authentication failed")
                 .data(null)
                 .build());
+        System.out.println("fail");
+        System.out.println(b);
         response.sendRedirect("/Login");
         response.setContentType("text/html;charset=utf-8");
     }

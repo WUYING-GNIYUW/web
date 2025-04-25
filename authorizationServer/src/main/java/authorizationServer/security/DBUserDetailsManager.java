@@ -1,8 +1,9 @@
 package authorizationServer.security;
 
 
-import authorizationServer.constant.UserConstant;
-import authorizationServer.thread.UseridThread;
+//import common.feign.clients.UserClient;
+import common.pojo.Result;
+import common.pojo.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,12 +13,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 
 @Component
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class DBUserDetailsManager implements UserDetailsManager, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
-    private final UserConstant userConstant;
+    //private final UserClient userclient;
     @Override
     public void createUser(UserDetails user) {
 
@@ -44,14 +47,16 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsServ
     }
 
     @Override
-    public UserDetails loadUserByUsername(String userid) throws UsernameNotFoundException {
-        UseridThread.set(userid);
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        //Result<List<User>> userInfo = userclient.getUsers(User.builder().userId(userId).build());
+        //User userInDB = userInfo.getData().get(0);
+        User userInDB = User.builder().userId("wuying").password(passwordEncoder.encode("000000")).roles("ADMIN").build();
         return org.springframework.security.core.userdetails.User
-                .withUsername("user.getUserid()")
+                .withUsername(userInDB.getUserId())
+                .password(userInDB.getPassword())
+                .accountLocked(false)
+                .roles(userInDB.getRoles())
+                .authorities("SCOPE_openid")
                 .build();
     }
-    public void loadUserByUserid(String userid) throws UsernameNotFoundException {
-
-    }
-
 }

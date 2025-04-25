@@ -16,29 +16,35 @@ spring:
           uri: lb://user-server
           predicates:
             - Path=/user/**
-#        - id: webflux
-#          uri: lb://webflux-resource
+#        - id: oauth2-callback
+#          uri: //localhost:8080
 #          predicates:
-#            - Path=/webflux/**
-#            -
+#            - Path=/login/oauth2/code/**  # 确保路径透传到下游服务
+#          filters:
+#            - StripPrefix=0  # 禁止截断路径前缀
+#        - id: login
+#          uri: lb://authorization-server
+#          predicates:
+#            - Path=/loginPage/**
+#            - Path=/login/**
+
   security:
     oauth2:
       client:
         registration:
-          gateway:
-            client-id: "gatewayClient"
+          gatewayClient:
+            client-id: "gatewayclient"
             client-secret: "000000"
             authorization-grant-type:
               - "authorization_code"
-              - "refresh_token"
-            redirect-uri: "http://localhost:8080/login/oauth2/code/gatewayClient"
+            redirect-uri: "http://www.localhost:8080/login/oauth2/code/gatewayClient"
             scope:
               - "openid"
               - "profile"
             provider: "authorizationServer"
         provider:
           authorizationServer:
-            issuer-uri: "http://127.0.0.1:8081"
+            issuer-uri: "http://authorizationserver:8081"
 #      resourceserver:
 #        jwt:
 #          issuer-uri: http://127.0.0.1:8081
@@ -51,6 +57,6 @@ spring:
 
 logging:
   level:
-    org.springframework.cloud.gateway: TRACE
+    org.springframework.cloud.gateway: DEBUG
     org.springframework.security: DEBUG
     reactor.netty: DEBUG

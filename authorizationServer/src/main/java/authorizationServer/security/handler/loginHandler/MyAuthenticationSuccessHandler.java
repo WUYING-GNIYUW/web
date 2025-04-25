@@ -19,6 +19,7 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         String targetUrl = (savedRequest != null) ? savedRequest.getRedirectUrl() : "/home";
         System.out.println(targetUrl);
         // 进行重定向
+        System.out.println("success");
         response.setContentType("text/html;charset=utf-8");
         response.sendRedirect(targetUrl);
 //        String jsonResult = JSONObject.toJSONString(Result

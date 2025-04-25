@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 
-@FeignClient("user-server")
-public interface UserClient {
-    @PostMapping("/get")
-    Result<List<User>> getUsers(@RequestBody User user);
-}
+//@FeignClient("user-server")
+//public interface UserClient {
+//    @PostMapping("/api/get")
+//    Result<List<User>> getUsers(@RequestBody User user);
+//}
