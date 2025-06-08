@@ -9,8 +9,8 @@ spring:
 
   config:
     import:
-      - "classpath:jwt_properties.yml"
-      - "classpath:user_message_properties.yml"
+#      - "classpath:jwt_properties.yml"
+#      - "classpath:user_message_properties.yml"
       - "nacos:user-server.yaml"
 
   cloud:
@@ -30,11 +30,11 @@ spring:
       configuration:
         map-underscore-to-camel-case: true
 
-  security:
-    oauth2:
-      resource-server:
-        jwt:
-          issuer-uri: "http://127.0.0.1:8081"
+#  security:
+#    oauth2:
+#      resource-server:
+#        jwt:
+#          issuer-uri: "http://127.0.0.1:8081"
 
 logging:
   level:

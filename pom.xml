@@ -9,8 +9,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>wuying</groupId>
-    <artifactId>Web</artifactId>
+    <groupId>com.wuying</groupId>
+    <artifactId>web</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Web</name>

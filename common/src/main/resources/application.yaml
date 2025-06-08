@@ -1,5 +1,24 @@
-application:
-  name: common
+#spring:
+#
+#  application:
+#    name: common
+#
+#    datasource:
+#      url: "jdbc:mysql://localhost:3306/wuying?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+#      username: "root"
+#      password: "000000"
+#      driver-class-name: "com.mysql.cj.jdbc.Driver"
+#      port: 3306\
+spring:
+  datasource:
+      url: "jdbc:mysql://localhost:3306/wuying?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      username: "root"
+      password: "000000"
+      driver-class-name: "com.mysql.cj.jdbc.Driver"
+      port: 3306\
+
 logging:
   level:
     common: DEBUG
+
+
