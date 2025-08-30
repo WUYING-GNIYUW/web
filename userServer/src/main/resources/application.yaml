@@ -26,9 +26,9 @@ spring:
     driver-class-name: "com.mysql.cj.jdbc.Driver"
     port: 3306
 
-    mybatis-plus:
-      configuration:
-        map-underscore-to-camel-case: true
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
 
 #  security:
 #    oauth2:

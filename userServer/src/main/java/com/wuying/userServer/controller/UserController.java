@@ -19,14 +19,22 @@ public class UserController {
 
     @Operation(summary = "普通user请求")
     @GetMapping("/test/{id}")
-    public Result<User> getByIdJustForTest(@PathVariable(value = "id") String id) {
+    public Result<User> getByIdJustForTest(@PathVariable(value = "id") Long id) {
         User user = userServiceImpl.getById(id);
         return Result.<User>builder().data(user).build();
+    }
+    @GetMapping("/test")
+    public String ForTest() {
+        return "ok";
     }
 
     @PostMapping("/add")
     public Result<Boolean> addUser(@RequestBody User addUser) {
         return userServiceImpl.addUser(addUser);
+    }
+    @PostMapping("/register")
+    public Result<Boolean> registerUser(@RequestBody User registerUser) {
+        return userServiceImpl.addUser(registerUser);
     }
     @PostMapping("/get")
     public Result<List<User>> getUsers(@RequestBody User queryUser) {
@@ -37,7 +45,7 @@ public class UserController {
         return Result.<Boolean>builder().data(userServiceImpl.updateById(user)).build();
     }
     @PostMapping("/remove")
-    public Result removeUser(@RequestBody User user) {
-        return userServiceImpl.removeUser(user);
+    public Result<Boolean> removeUser(@RequestBody User user) {
+        return Result.<Boolean>builder().data(userServiceImpl.removeById(user)).build();
     }
 }

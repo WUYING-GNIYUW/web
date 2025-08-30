@@ -23,24 +23,25 @@ spring:
       discovery:
         server-addr: localhost:8848
 
-#  security:
-#    oauth2:
-#      authorizationserver:
-#        client:
-#          gatewayClient:
-#            registration:
-#              client-id: "gatewayClient"
-#              client-secret: "{noop}000000"
-#              client-authentication-methods:
-#                - "client_secret_basic"
-#              authorization-grant-types:
-#                - "authorization_code"
-#              redirect-uris:
-#                - "http://localhost:8080/login/oauth2/code/gatewayClient"
-##              post-logout-redirect-uris:
-##                - "http://localhost:8080/home"
-#              scopes:
-#                - openid
+  security:
+    oauth2:
+      authorizationserver:
+        client:
+          #客户端名字
+          gatewayClient:
+            registration:
+              client-id: "gatewayClient"
+              client-secret: "$2a$10$nDUzPNsp3WUWmSC3Mao3Q.hde98tpdUqh7MXLznpzbpOl/rEiD5C6"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "authorization_code"
+              redirect-uris:
+                - "http://localhost:8080/login/oauth2/code/gatewayClient"
+#              post-logout-redirect-uris:
+#                - "http://localhost:8080/home"
+              scopes:
+                - "openid"
 #                - "profile"
 ##            require-authorization-consent: true
 

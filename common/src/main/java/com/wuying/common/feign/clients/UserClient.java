@@ -13,7 +13,7 @@ import java.util.List;
 public interface UserClient {
 //    @PostMapping("/user/test/{id}")
 //    Result<List<User>> feignGetByIdJustForTest(@PathVariable(value = "id") String id);
-    @PostMapping("/api/user/get")
+    @PostMapping("/user/get")
     Result<List<User>> getUsers(@RequestBody User queryUser);
 
 }

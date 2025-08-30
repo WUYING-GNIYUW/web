@@ -22,7 +22,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     private final UserConstant userConstant;
 
     public Result<Boolean> addUser(User adduser) {
-        if(getById(adduser.getUserid())==null){
+        if(getById(adduser.getUserId())==null){
             save(adduser);
             return Result.<Boolean>builder().data(true).build();
         }
@@ -32,16 +32,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     }
 
     public Result<List<User>> getUsers(User queryUser) {
-        lambdaQuery()
-                .eq(queryUser.getUserid() != null, User::getUserid, queryUser.getUserid())
-                .like(queryUser.getUsername() != null, User::getUsername, queryUser.getUsername())
+        List<User> userList = lambdaQuery()
+                .eq(queryUser.getUserId() != null, User::getUserId, queryUser.getUserId())
+                .like(queryUser.getUserName() != null, User::getUserName, queryUser.getUserName())
                 .eq(queryUser.getAvailableState() != null, User::getAvailableState, queryUser.getAvailableState())
                 .eq(queryUser.getOnlineState() != null, User::getOnlineState, queryUser.getOnlineState())
                 .list();
 
-        Map<String, Object> mapOfUser = BeanUtil.beanToMap(queryUser);
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        List<User> userList= list(userQueryWrapper.allEq(mapOfUser));
+//        Map<String, Object> mapOfUser = BeanUtil.beanToMap(queryUser);
+//        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+//        list(userQueryWrapper.allEq(mapOfUser));
         return Result.<List<User>>builder().data(userList).build();
     }
 
@@ -50,7 +50,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         List<String> UserIds = new ArrayList<>();
         Users.forEach(User->{UserIds.add(User.getUsername());});
         Users.forEach(System.out::println);*/
-        if(getById(removeUser.getUserid()) != null){
+        if(getById(removeUser.getUserId()) != null){
             removeById(removeUser);
             return Result.<Boolean>builder().data(true).build();
         }

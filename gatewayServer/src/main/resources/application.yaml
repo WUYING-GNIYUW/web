@@ -15,7 +15,7 @@ spring:
         - id: user
           uri: lb://user-server
           predicates:
-            - Path=/user/**
+            - Path=/user/**,/api/user/**
         - id: user-api
           uri: lb://user-server
           predicates:
@@ -37,14 +37,13 @@ spring:
       client:
         registration:
           gatewayClient:
-            client-id: "gatewayclient"
+            client-id: "gatewayClient"
             client-secret: "000000"
-            authorization-grant-type:
-              - "authorization_code"
-            redirect-uri: "http://www.localhost:8080/login/oauth2/code/gatewayClient"
+            authorization-grant-type: "authorization_code"
+            redirect-uri: "http://localhost:8080/login/oauth2/code/gatewayClient"
             scope:
               - "openid"
-              - "profile"
+#              - "profile"
             provider: "authorizationServer"
         provider:
           authorizationServer:
