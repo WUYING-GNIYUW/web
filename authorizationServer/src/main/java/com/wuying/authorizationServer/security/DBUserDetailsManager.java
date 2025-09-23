@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +18,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class DBUserDetailsManager implements UserDetailsManager, UserDetailsService {
-    private final PasswordEncoder passwordEncoder;
     private final UserClient userclient;
     @Override
     public void createUser(UserDetails user) {
@@ -42,13 +40,16 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsServ
     }
 
     @Override
-    public boolean userExists(String username) {
-        return false;
+    public boolean userExists(String userId) {
+        Result<List<User>> userInfo = userclient.getUsers(User.builder().userId(Long.parseLong(userId)).build());
+        User userInDB = userInfo.getData().get(0);
+        return userInfo.getMessage().equals("user exist");
+        //User userInDB = User.builder().userId("wuying").password(passwordEncoder.encode("000000")).roles("ADMIN").build();
+
     }
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        System.out.println(userId);
         Result<List<User>> userInfo = userclient.getUsers(User.builder().userId(Long.parseLong(userId)).build());
         User userInDB = userInfo.getData().get(0);
         //User userInDB = User.builder().userId("wuying").password(passwordEncoder.encode("000000")).roles("ADMIN").build();

@@ -1,7 +1,5 @@
 package com.wuying.userServer.service;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuying.userServer.constant.UserConstant;
 import com.wuying.userServer.exception.AddUserException;
@@ -14,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+
 @Service
 //@Transactional(rollbackFor = {Exception.class})
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -38,7 +38,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
                 .eq(queryUser.getAvailableState() != null, User::getAvailableState, queryUser.getAvailableState())
                 .eq(queryUser.getOnlineState() != null, User::getOnlineState, queryUser.getOnlineState())
                 .list();
-
 //        Map<String, Object> mapOfUser = BeanUtil.beanToMap(queryUser);
 //        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
 //        list(userQueryWrapper.allEq(mapOfUser));

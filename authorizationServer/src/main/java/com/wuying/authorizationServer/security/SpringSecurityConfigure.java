@@ -131,7 +131,7 @@ public class SpringSecurityConfigure {
         //http.addFilterBefore(new ParseJwtFilter(), UsernamePasswordAuthenticationFilter.class);
         //http.addFilterAfter(new SetJwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        http.cors(AbstractHttpConfigurer::disable);
+
         http.csrf(AbstractHttpConfigurer::disable);
 
 
