@@ -1,6 +1,11 @@
 package com.wuying.gatewayServer.security;
+import com.wuying.gatewayServer.security.filter.BarerProcessFilter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -9,11 +14,12 @@ import org.springframework.security.web.server.savedrequest.WebSessionServerRequ
 
 @EnableWebFluxSecurity
 @Configuration
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class SpringSecurityConfigure {
-    //@Bean
+    private final BarerProcessFilter barerProcessFilter;
+    @Bean
     public SecurityWebFilterChain defaultSecurityFilterChain(ServerHttpSecurity http) {
 
-        WebSessionServerRequestCache requestCache = new WebSessionServerRequestCache();
         // 禁用csrf与cors
         http.csrf(ServerHttpSecurity.CsrfSpec::disable);
         http.cors(ServerHttpSecurity.CorsSpec::disable);
@@ -36,12 +42,13 @@ public class SpringSecurityConfigure {
         ;
 //                .requestCache(Cache -> Cache.
 //                requestCache(requestCache));
-        http.oauth2Client(Customizer.withDefaults()).requestCache(Cache ->Cache.requestCache(requestCache));
+        http.oauth2Client(Customizer.withDefaults()).requestCache(Cache ->Cache.requestCache(new WebSessionServerRequestCache()));
 
 //        http.exceptionHandling(exception -> exception
 //                //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 //                .accessDeniedHandler(new CustomAccessDeniedHandler())// 未认证用户访问受保护资源.accessDeniedHandler(accessDeniedHandler)       // 已认证用户权限不足
 //        );
+        http.addFilterAt(barerProcessFilter, SecurityWebFiltersOrder.AUTHENTICATION);
         return http.build();
     }
 //    @Bean

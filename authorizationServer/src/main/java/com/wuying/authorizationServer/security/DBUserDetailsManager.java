@@ -1,6 +1,7 @@
 package com.wuying.authorizationServer.security;
 
 
+import com.wuying.authorizationServer.service.UserServiceImpl;
 import com.wuying.common.feign.clients.UserClient;
 import com.wuying.common.pojo.Result;
 import com.wuying.common.pojo.User;
@@ -18,6 +19,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class DBUserDetailsManager implements UserDetailsManager, UserDetailsService {
+    private final UserServiceImpl userServiceImpl;
     private final UserClient userclient;
     @Override
     public void createUser(UserDetails user) {
@@ -50,15 +52,16 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsServ
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        Result<List<User>> userInfo = userclient.getUsers(User.builder().userId(Long.parseLong(userId)).build());
+//        Result<List<User>> userInfo = userclient.getUsers(User.builder().userId(Long.parseLong(userId)).build());
+        Result<List<User>> userInfo = userServiceImpl.getUsers(User.builder().userId(Long.parseLong(userId)).build());
         User userInDB = userInfo.getData().get(0);
         //User userInDB = User.builder().userId("wuying").password(passwordEncoder.encode("000000")).roles("ADMIN").build();
         return org.springframework.security.core.userdetails.User
-                .withUsername(userInDB.getUserName())
+                .withUsername(Long.toString(userInDB.getUserId()))
                 .password(userInDB.getPassword())
                 .accountLocked(false)
                 .roles(userInDB.getRoles())
-                .authorities("SCOPE_openid")
+//                .authorities("SCOPE_openid")
                 .build();
     }
 }

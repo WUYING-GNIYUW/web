@@ -45,6 +45,28 @@ spring:
 #                - "profile"
 ##            require-authorization-consent: true
 
+  datasource:
+    url: "jdbc:mysql://localhost:3306/wuying?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+    username: "root"
+    password: "000000"
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
+    port: 3306
+
+#redisson:
+#  # 集群配置
+#  clusterServersConfig:
+#    # 所有集群节点地址（必须是完整的 host:port 列表）
+#    nodeAddresses:
+#      - "redis://10.0.0.11:7000"
+#      - "redis://10.0.0.12:7001"
+#      - "redis://10.0.0.13:7002"
+#      - "redis://10.0.0.14:7003"
+#      - "redis://10.0.0.15:7004"
+#      - "redis://10.0.0.16:7005"
+#
+#    # 如果你的集群需要密码
+#    password: "yourRedisPassword"
+
 logging:
   level:
     org:
