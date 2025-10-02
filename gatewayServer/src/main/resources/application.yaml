@@ -40,14 +40,14 @@ spring:
             client-id: "gatewayClient"
             client-secret: "000000"
             authorization-grant-type: "authorization_code"
-            redirect-uri: "http://localhost:8080/login/oauth2/code/gatewayClient"
+            redirect-uri: "http://8.138.34.108:8080/login/oauth2/code/gatewayClient"
             scope:
               - "openid"
 #              - "profile"
             provider: "authorizationServer"
         provider:
           authorizationServer:
-            issuer-uri: "http://authorizationserver:8081"
+            issuer-uri: "http://8.138.34.108:8081"
 #      resourceserver:
 #        jwt:
 #          issuer-uri: http://127.0.0.1:8081

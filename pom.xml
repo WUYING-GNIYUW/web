@@ -12,6 +12,12 @@
     <groupId>com.wuying</groupId>
     <artifactId>web</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <modules>
+        <module>common</module>
+        <module>authorizationServer</module>
+        <module>gatewayServer</module>
+        <module>userServer</module>
+    </modules>
     <packaging>pom</packaging>
     <name>Web</name>
     <description>Web</description>
