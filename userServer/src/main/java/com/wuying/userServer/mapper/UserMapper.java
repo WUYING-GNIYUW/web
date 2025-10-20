@@ -1,7 +1,7 @@
 package com.wuying.userServer.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wuying.userServer.pojo.User;
+import com.wuying.common.pojo.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.transaction.annotation.Transactional;
 

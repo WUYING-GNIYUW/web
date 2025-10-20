@@ -1,11 +1,11 @@
 package com.wuying.userServer.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wuying.userServer.constant.UserConstant;
+//import com.wuying.userServer.constant.UserConstant;
 import com.wuying.userServer.exception.AddUserException;
 import com.wuying.userServer.mapper.UserMapper;
-import com.wuying.userServer.pojo.Result;
-import com.wuying.userServer.pojo.User;
+import com.wuying.common.pojo.Result;
+import com.wuying.common.pojo.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.concurrent.locks.Lock;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements UserService {
     private final UserMapper userMapper;
-    private final UserConstant userConstant;
+    //private final UserConstant userConstant;
 
     public Result<Boolean> addUser(User adduser) {
         if(getById(adduser.getUserId())==null){

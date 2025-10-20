@@ -10,6 +10,8 @@
 #      driver-class-name: "com.mysql.cj.jdbc.Driver"
 #      port: 3306
 spring:
+  config:
+    import: "optional:nacos:common.yaml"
   datasource:
       url: "jdbc:mysql://localhost:3306/wuying?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
       username: "root"

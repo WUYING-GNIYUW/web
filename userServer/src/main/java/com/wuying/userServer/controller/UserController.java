@@ -1,11 +1,14 @@
 package com.wuying.userServer.controller;
-import com.wuying.userServer.pojo.Result;
-import com.wuying.userServer.pojo.User;
+import com.wuying.common.pojo.Result;
+import com.wuying.common.pojo.User;
+import com.wuying.common.util.Util;
 import com.wuying.userServer.service.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +24,7 @@ public class UserController {
     @GetMapping("/test/{id}")
     public Result<User> getByIdJustForTest(@PathVariable(value = "id") Long id) {
         User user = userServiceImpl.getById(id);
+
         return Result.<User>builder().data(user).build();
     }
     @GetMapping("/test")
@@ -47,5 +51,17 @@ public class UserController {
     @PostMapping("/remove")
     public Result<Boolean> removeUser(@RequestBody User user) {
         return Result.<Boolean>builder().data(userServiceImpl.removeById(user)).build();
+    }
+    @GetMapping("/getWebsocketPage")
+    public ResponseEntity<Void> login() {
+        String internalUri = "/internal_protected/" + Util.encodePath("/websocketPage.html");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Accel-Redirect", internalUri);
+
+        // 可选：后端希望客户端收到的头（Cache-Control / Content-Disposition）
+//        headers.add(HttpHeaders.CACHE_CONTROL, "private, max-age=60");
+        // headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report.pdf\"");
+
+        return ResponseEntity.ok().headers(headers).build();
     }
 }

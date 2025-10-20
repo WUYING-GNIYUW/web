@@ -1,7 +1,7 @@
 package com.wuying.userServer.api;
 
-import com.wuying.userServer.pojo.Result;
-import com.wuying.userServer.pojo.User;
+import com.wuying.common.pojo.Result;
+import com.wuying.common.pojo.User;
 import com.wuying.userServer.service.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>SockJS + STOMP 测试页面（已去除前端选择广播/私聊）</title>
+    <style>
+        /* 样式保持原样 */
+        :root{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;}
+        body{margin:0;background:#f5f7fb;color:#0f172a;display:flex;align-items:center;justify-content:center;height:100vh}
+        .card{width:980px;max-width:96%;background:#fff;border-radius:12px;box-shadow:0 6px 30px rgba(11,14,23,0.08);padding:20px}
+        .row{display:flex;gap:12px;align-items:center}
+        label{font-size:13px;color:#334155}
+        input[type=text], textarea, select{padding:8px 10px;border:1px solid #e6e9ef;border-radius:8px;font-size:13px}
+        button{padding:8px 12px;border-radius:8px;border:0;background:#2563eb;color:#fff;cursor:pointer}
+        button.ghost{background:#f1f5f9;color:#0f172a}
+        .controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+        .panel{margin-top:14px;border-radius:8px;border:1px solid #eef2ff;padding:12px;background:#fbfdff}
+        .log{height:280px;overflow:auto;background:#0b1220;color:#e6eef8;padding:10px;border-radius:8px;font-family:monospace;font-size:13px}
+        .status{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:600}
+        .connected{background:#dcfce7;color:#166534}
+        .connecting{background:#fef3c7;color:#92400e}
+        .closed{background:#fee2e2;color:#7f1d1d}
+        textarea{width:100%;min-height:60px}
+        .flex{display:flex;gap:12px}
+        .grow{flex:1}
+        .meta{font-size:12px;color:#64748b}
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>SockJS + STOMP 前端示例（后端控制分发，前端不选择单点/广播）</h2>
+
+    <div class="row" style="justify-content:space-between">
+        <div>
+            <label>WebSocket 端点</label>
+            <input id="wsEndpoint" type="text" value="/ws" style="width:240px" />
+        </div>
+
+        <div style="text-align:right">
+            <div>连接状态： <span id="connStatus" class="status closed">CLOSED</span></div>
+            <div class="controls">
+                <button id="btnConnect">连接</button>
+                <button id="btnDisconnect" class="ghost">断开</button>
+                <button id="btnClear" class="ghost">清空日志</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="flex">
+            <div style="width:48%">
+                <label>接收日志</label>
+                <div id="log" class="log"></div>
+            </div>
+
+            <div style="width:52%">
+                <label>发送消息（注意：后端决定是否广播或私发）</label>
+                <textarea id="sendText" placeholder='输入要发送的消息'></textarea>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+                    <div class="meta">发送到后端统一处理（示例：/app/message）。</div>
+                    <div>
+                        <button id="btnSend">发送</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 引入 SockJS + STOMP -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<script>
+    (function(){
+      const endpointInput = document.getElementById('wsEndpoint');
+      const logEl = document.getElementById('log');
+      const statusEl = document.getElementById('connStatus');
+      const btnConnect = document.getElementById('btnConnect');
+      const btnDisconnect = document.getElementById('btnDisconnect');
+      const btnSend = document.getElementById('btnSend');
+      const btnClear = document.getElementById('btnClear');
+      const sendText = document.getElementById('sendText');
+
+      let stompClient = null;
+
+      function log(msg){
+        const time = new Date().toLocaleTimeString();
+        const div = document.createElement('div');
+        div.textContent = `[${time}] ${msg}`;
+        logEl.appendChild(div);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function setStatus(state){
+        statusEl.className = 'status ' + state.toLowerCase();
+        statusEl.textContent = state.toUpperCase();
+      }
+
+      function connect(){
+        const endpoint = endpointInput.value || '/ws';
+        log(`尝试连接到 SockJS 端点：${endpoint}`);
+        setStatus('connecting');
+
+        const socket = new SockJS(endpoint);
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null; // 关闭控制台冗余日志
+
+        stompClient.connect({}, function(frame){
+          setStatus('connected');
+          log('连接成功: ' + frame);
+
+          // 订阅：前端订阅由后端发送的若干通道（后端决定何种分发）
+          // 你可以根据后端实际话题修改这些订阅
+          stompClient.subscribe('/topic/public', function(message){
+            log('接收到 /topic/public : ' + message.body);
+          });
+
+          // 订阅个人队列（如果后端向特定 user 发送私有消息）
+          stompClient.subscribe('/user/queue/messages', function(message){
+            log('接收到 /user/queue/messages : ' + message.body);
+          });
+
+          // 额外示例：订阅后端统一推送通道（可选）
+          // stompClient.subscribe('/topic/updates', msg => log('updates: ' + msg.body));
+
+          log('订阅完成（前端只是订阅，消息是否广播或私发由后端决定）');
+        }, function(err){
+          setStatus('closed');
+          log('连接出错: ' + err);
+        });
+      }
+
+      function disconnect(){
+        if(stompClient){
+          try{
+            stompClient.disconnect(function(){
+              log('已断开连接');
+            });
+          }catch(e){
+            // ignore
+          }
+          setStatus('closed');
+          stompClient = null;
+        }else{
+          log('当前未连接');
+        }
+      }
+
+      function sendMessage(){
+        if(!stompClient || !stompClient.connected){
+          log('未连接，无法发送');
+          return;
+        }
+        const text = sendText.value.trim();
+        if(!text){
+          log('请输入消息内容');
+          return;
+        }
+
+        // 前端只发送到统一的后端入口，由后端决定是广播还是私发
+        // 后端示例映射：@MessageMapping("/message") -> 发送到 /topic/... 或 /user/{id}/queue/...
+        stompClient.send('/app/message', {}, JSON.stringify({ content: text }));
+        log('发送到后端统一入口 /app/message ：' + text);
+      }
+
+      btnConnect.addEventListener('click', connect);
+      btnDisconnect.addEventListener('click', disconnect);
+      btnSend.addEventListener('click', sendMessage);
+      btnClear.addEventListener('click', () => { logEl.innerHTML = ''; });
+
+    })();
+</script>
+</body>
+</html>

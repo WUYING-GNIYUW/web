@@ -9,9 +9,9 @@ spring:
 
   config:
     import:
+      - "nacos:user-server.yaml"
 #      - "classpath:jwt_properties.yml"
 #      - "classpath:user_message_properties.yml"
-      - "nacos:user-server.yaml"
 
   cloud:
     nacos:

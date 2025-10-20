@@ -8,9 +8,10 @@ spring:
 
   config:
     import:
-    - "classpath:jwt_properties.yml"
-    - "classpath:user_message_properties.yml"
-    - "nacos:authorization-server.yaml"
+      - "nacos:authorization-server.yaml"
+#      - "classpath:jwt_properties.yml"
+#      - "classpath:user_message_properties.yml"
+
 
   thymeleaf:
     prefix: classpath:/templates/
@@ -20,7 +21,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: http://localhost:8848
+        server-addr: localhost:8848
 
   security:
     oauth2:

@@ -6,7 +6,10 @@ server:
 
 spring:
   config:
-    import: "nacos:gateway-server.yaml"
+    import:
+      - "nacos:gateway-server.yaml"
+#      - "classpath:jwt_properties.yml"
+#      - "classpath:user_message_properties.yml"
   cloud:
     nacos:
       server-addr: localhost:8848
