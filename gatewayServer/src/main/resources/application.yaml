@@ -19,10 +19,14 @@ spring:
           uri: lb://user-server
           predicates:
             - Path=/user/**,/api/user/**
-        - id: user-api
-          uri: lb://user-server
+        - id: authorization
+          uri: lb://authorization-server
           predicates:
-            - Path=/user/**
+            - Path=/oauth2/**,/userinfo/**,/connect/**
+#        - id: user-api
+#          uri: lb://user-server
+#          predicates:
+#            - Path=/user/**
 #        - id: oauth2-callback
 #          uri: //localhost:8080
 #          predicates:
@@ -43,14 +47,14 @@ spring:
             client-id: "gatewayClient"
             client-secret: "000000"
             authorization-grant-type: "authorization_code"
-            redirect-uri: "http://localhost:8080/login/oauth2/code/gatewayClient"
+            redirect-uri: "http://localhost:80/login/oauth2/code/gatewayClient"
             scope:
               - "openid"
 #              - "profile"
             provider: "authorizationServer"
         provider:
           authorizationServer:
-            issuer-uri: "http://authorizationserver:8081"
+            issuer-uri: "http://authorizationserver:80"
 #      resourceserver:
 #        jwt:
 #          issuer-uri: http://127.0.0.1:8081

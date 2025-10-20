@@ -26,7 +26,7 @@ spring:
   security:
     oauth2:
       authorizationserver:
-        issuer: "http://authorizationserver:8081"
+        issuer: "http://authorizationserver:80"
         client:
           #客户端名字
           gatewayClient:
@@ -38,7 +38,7 @@ spring:
               authorization-grant-types:
                 - "authorization_code"
               redirect-uris:
-                - "http://localhost:8080/login/oauth2/code/gatewayClient"
+                - "http://localhost:80/login/oauth2/code/gatewayClient"
 #              post-logout-redirect-uris:
 #                - "http://localhost:8080/home"
               scopes:
