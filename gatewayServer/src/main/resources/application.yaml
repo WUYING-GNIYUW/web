@@ -19,10 +19,10 @@ spring:
           uri: lb://user-server
           predicates:
             - Path=/user/**,/api/user/**
-        - id: authorization
-          uri: lb://authorization-server
-          predicates:
-            - Path=/oauth2/**,/userinfo/**,/connect/**
+#        - id: authorization
+#          uri: lb://authorization-server
+#          predicates:
+#            - Path=/oauth2/**,/userinfo/**,/connect/**
 #        - id: user-api
 #          uri: lb://user-server
 #          predicates:
@@ -54,7 +54,7 @@ spring:
             provider: "authorizationServer"
         provider:
           authorizationServer:
-            issuer-uri: "http://authorizationserver:80"
+            issuer-uri: "http://authorizationserver:8100"
 #      resourceserver:
 #        jwt:
 #          issuer-uri: http://127.0.0.1:8081
@@ -70,3 +70,17 @@ logging:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.security: DEBUG
     reactor.netty: DEBUG
+    #new
+    # Nacos 客户端核心日志
+    com.alibaba.nacos.client: DEBUG
+    com.alibaba.nacos.client.naming: TRACE
+    com.alibaba.nacos.client.config: DEBUG
+    # Nacos HTTP 请求日志
+    com.alibaba.nacos.client.naming.net: DEBUG
+    com.alibaba.nacos.client.config.impl: DEBUG
+    com.alibaba.nacos.common.http: DEBUG
+    # Spring Cloud 相关
+    org.springframework.cloud.loadbalancer: TRACE
+    org.springframework.cloud.client.loadbalancer: DEBUG
+    # Reactor Netty
+    reactor.netty.http.client: DEBUG

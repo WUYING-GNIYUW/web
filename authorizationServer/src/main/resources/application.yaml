@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8101
 
 spring:
 
@@ -8,7 +8,7 @@ spring:
 
   config:
     import:
-      - "nacos:authorization-server.yaml"
+#      - "nacos:authorization-server.yaml"
 #      - "classpath:jwt_properties.yml"
 #      - "classpath:user_message_properties.yml"
 
@@ -18,15 +18,16 @@ spring:
     suffix: .html
     check-template-location: true
 
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
+#  cloud:
+#    nacos:
+#      discovery:
+#        port: 8100
+#        server-addr: localhost:8848
 
   security:
     oauth2:
       authorizationserver:
-        issuer: "http://authorizationserver:80"
+        issuer: "http://authorizationserver:8100"
         client:
           #客户端名字
           gatewayClient:

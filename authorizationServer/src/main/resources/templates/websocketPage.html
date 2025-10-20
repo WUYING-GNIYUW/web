@@ -1,10 +1,9 @@
 <!doctype html>
-<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8" />
     <title>SockJS + STOMP 测试页面（已去除前端选择广播/私聊）</title>
     <style>
-        /* 样式保持原样 */
         :root{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;}
         body{margin:0;background:#f5f7fb;color:#0f172a;display:flex;align-items:center;justify-content:center;height:100vh}
         .card{width:980px;max-width:96%;background:#fff;border-radius:12px;box-shadow:0 6px 30px rgba(11,14,23,0.08);padding:20px}
@@ -104,25 +103,19 @@
 
         const socket = new SockJS(endpoint);
         stompClient = Stomp.over(socket);
-        stompClient.debug = null; // 关闭控制台冗余日志
+        stompClient.debug = null;
 
         stompClient.connect({}, function(frame){
           setStatus('connected');
           log('连接成功: ' + frame);
 
-          // 订阅：前端订阅由后端发送的若干通道（后端决定何种分发）
-          // 你可以根据后端实际话题修改这些订阅
           stompClient.subscribe('/topic/public', function(message){
             log('接收到 /topic/public : ' + message.body);
           });
 
-          // 订阅个人队列（如果后端向特定 user 发送私有消息）
           stompClient.subscribe('/user/queue/messages', function(message){
             log('接收到 /user/queue/messages : ' + message.body);
           });
-
-          // 额外示例：订阅后端统一推送通道（可选）
-          // stompClient.subscribe('/topic/updates', msg => log('updates: ' + msg.body));
 
           log('订阅完成（前端只是订阅，消息是否广播或私发由后端决定）');
         }, function(err){
@@ -137,9 +130,7 @@
             stompClient.disconnect(function(){
               log('已断开连接');
             });
-          }catch(e){
-            // ignore
-          }
+          }catch(e){}
           setStatus('closed');
           stompClient = null;
         }else{
@@ -158,8 +149,6 @@
           return;
         }
 
-        // 前端只发送到统一的后端入口，由后端决定是广播还是私发
-        // 后端示例映射：@MessageMapping("/message") -> 发送到 /topic/... 或 /user/{id}/queue/...
         stompClient.send('/app/message', {}, JSON.stringify({ content: text }));
         log('发送到后端统一入口 /app/message ：' + text);
       }
