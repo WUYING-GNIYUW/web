@@ -8,7 +8,7 @@ spring:
 
   config:
     import:
-      - "nacos:authorization-server.yaml"
+      - "nacos:authorization-server"
 #      - "classpath:jwt_properties.yml"
 #      - "classpath:user_message_properties.yml"
 
@@ -20,5 +20,7 @@ spring:
         server-addr: 106.53.106.123:8848
 #        namespace: public
 #        group: DEFAULT_GROUP
-#        file-extension: yaml
+        file-extension: yaml
         refresh-enabled: true
+
+

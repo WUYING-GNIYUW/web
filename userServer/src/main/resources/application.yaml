@@ -9,13 +9,17 @@ spring:
 
   config:
     import:
-      - "nacos:user-server.yaml"
+      - "nacos:user-server"
 #      - "classpath:jwt_properties.yml"
 #      - "classpath:user_message_properties.yml"
 
   cloud:
     nacos:
       discovery:
-        ip: 8.138.34.108
         server-addr: 106.53.106.123:8848
+        ip: 8.138.34.108
+      config:
+        server-addr: 106.53.106.123:8848
+        file-extension: yaml
+        refresh-enabled: true
 

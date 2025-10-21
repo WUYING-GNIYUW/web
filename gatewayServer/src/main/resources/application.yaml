@@ -7,9 +7,15 @@ server:
 spring:
   config:
     import:
-      - "nacos:gateway-server.yaml"
+      - "nacos:gateway-server"
 #      - "classpath:jwt_properties.yml"
 #      - "classpath:user_message_properties.yml"
   cloud:
     nacos:
-      server-addr: 106.53.106.123:8848
+      discovery:
+        enabled: false
+      config:
+        server-addr: 106.53.106.123:8848
+        file-extension: yaml
+        refresh-enabled: true
+
