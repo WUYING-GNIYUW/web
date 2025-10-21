@@ -12,75 +12,10 @@ spring:
 #      - "classpath:user_message_properties.yml"
   cloud:
     nacos:
-      server-addr: localhost:8848
-    gateway:
-      routes:
-        - id: user
-          uri: lb://user-server
-          predicates:
-            - Path=/user/**,/api/user/**
-#        - id: authorization
-#          uri: lb://authorization-server
-#          predicates:
-#            - Path=/oauth2/**,/userinfo/**,/connect/**
-#        - id: user-api
-#          uri: lb://user-server
-#          predicates:
-#            - Path=/user/**
-#        - id: oauth2-callback
-#          uri: //localhost:8080
-#          predicates:
-#            - Path=/login/oauth2/code/**  # 确保路径透传到下游服务
-#          filters:
-#            - StripPrefix=0  # 禁止截断路径前缀
-#        - id: login
-#          uri: lb://authorization-server
-#          predicates:
-#            - Path=/loginPage/**
-#            - Path=/login/**
+      discovery:
+        enabled: false
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+        refresh-enabled: true
 
-  security:
-    oauth2:
-      client:
-        registration:
-          gatewayClient:
-            client-id: "gatewayClient"
-            client-secret: "000000"
-            authorization-grant-type: "authorization_code"
-            redirect-uri: "http://localhost:80/login/oauth2/code/gatewayClient"
-            scope:
-              - "openid"
-#              - "profile"
-            provider: "authorizationServer"
-        provider:
-          authorizationServer:
-            issuer-uri: "http://authorizationserver:8100"
-#      resourceserver:
-#        jwt:
-#          issuer-uri: http://127.0.0.1:8081
-#
-#logging:
-#  level:
-#    org:
-#      springframework:
-#        security: DEBUG
-
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.security: DEBUG
-    reactor.netty: DEBUG
-    #new
-    # Nacos 客户端核心日志
-    com.alibaba.nacos.client: DEBUG
-    com.alibaba.nacos.client.naming: TRACE
-    com.alibaba.nacos.client.config: DEBUG
-    # Nacos HTTP 请求日志
-    com.alibaba.nacos.client.naming.net: DEBUG
-    com.alibaba.nacos.client.config.impl: DEBUG
-    com.alibaba.nacos.common.http: DEBUG
-    # Spring Cloud 相关
-    org.springframework.cloud.loadbalancer: TRACE
-    org.springframework.cloud.client.loadbalancer: DEBUG
-    # Reactor Netty
-    reactor.netty.http.client: DEBUG
