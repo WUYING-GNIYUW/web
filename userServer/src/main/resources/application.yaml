@@ -9,7 +9,7 @@ spring:
 
   config:
     import:
-      - "nacos:user-server.yaml"
+      - "nacos:user-server"
 #      - "classpath:jwt_properties.yml"
 #      - "classpath:user_message_properties.yml"
 

@@ -19,8 +19,6 @@ spring:
         file-extension: yaml
         refresh-enabled: true
 
-
-
 #  thymeleaf:
 #    prefix: classpath:/templates/
 #    suffix: .html
