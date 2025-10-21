@@ -9,6 +9,8 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import java.security.Principal;
+
 
 @Component
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -18,9 +20,10 @@ public class WebSocketConnectListener {
     @EventListener
     public void SockJSConnectListener(SessionConnectedEvent event) {
         StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
-        String sessionId = sha.getSessionId();
-        System.out.println("SockJS 会话已创建, sessionId=" + sessionId);
-        taskExm.startTask(sessionId);
+        Principal principal = sha.getUser();
+        //String sessionId = sha.getSessionId();
+        System.out.println("SockJS 会话已创建, user =" + principal.getName());
+        taskExm.startTask(principal);
     }
 
     @EventListener

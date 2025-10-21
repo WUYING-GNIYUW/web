@@ -16,9 +16,9 @@ public class CustomJwtAuthConverter implements Converter<Jwt, AbstractAuthentica
     public AbstractAuthenticationToken convert(Jwt jwt) {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities = jwt.getClaimAsStringList("roles").stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
         System.out.println("Convert success");
-        return new JwtAuthenticationToken(jwt, authorities, jwt.getClaimAsString("userId"));
+        return new JwtAuthenticationToken(jwt, authorities, jwt.getClaimAsString("user_id"));
     }
 }

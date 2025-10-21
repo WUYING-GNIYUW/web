@@ -12,8 +12,6 @@ spring:
 #      - "classpath:user_message_properties.yml"
   cloud:
     nacos:
-      discovery:
-        enabled: false
       config:
         server-addr: localhost:8848
         file-extension: yaml

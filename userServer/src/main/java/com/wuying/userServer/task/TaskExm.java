@@ -6,6 +6,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.time.Duration;
 import java.util.concurrent.ScheduledFuture;
 
@@ -24,15 +25,15 @@ public class TaskExm {
 //    }
 
     // 任务内容
-    private void task(String sessionId) {
-        messagingTemplate.convertAndSendToUser(sessionId, "/queue/messages", "定时消息: " + System.currentTimeMillis());
+    private void task(Principal principal) {
+        messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/messages", "定时消息: " + System.currentTimeMillis());
         System.out.println("定时任务执行: " + System.currentTimeMillis());
     }
 
     // 后端接口调用启动任务
-    public void startTask(String sessionId) {
+    public void startTask(Principal principal) {
         if (future == null || future.isCancelled()) {
-            future = taskScheduler.scheduleAtFixedRate( () -> task(sessionId), Duration.ofSeconds(5));
+            future = taskScheduler.scheduleAtFixedRate( () -> task(principal), Duration.ofSeconds(5));
             System.out.println("定时任务已启动");
         }
     }

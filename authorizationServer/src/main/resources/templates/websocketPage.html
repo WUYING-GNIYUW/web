@@ -32,7 +32,7 @@
     <div class="row" style="justify-content:space-between">
         <div>
             <label>WebSocket 端点</label>
-            <input id="wsEndpoint" type="text" value="/ws" style="width:240px" />
+            <input id="wsEndpoint" type="text" value="http://localhost:80/user/ws" style="width:240px" />
         </div>
 
         <div style="text-align:right">
@@ -97,7 +97,7 @@
       }
 
       function connect(){
-        const endpoint = endpointInput.value || '/ws';
+        const endpoint = endpointInput.value || 'http://localhost:80/user/ws';
         log(`尝试连接到 SockJS 端点：${endpoint}`);
         setStatus('connecting');
 
