@@ -17,34 +17,5 @@ spring:
     nacos:
       discovery:
         ip: 8.138.34.108
-        server-addr: 8.138.34.108:8848
+        server-addr: 106.53.106.123:8848
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: "http://8.138.34.108:8100"
-
-  datasource:
-    url: "jdbc:mysql://8.138.34.108:3306/wuying?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
-    username: "root"
-    password: "000000"
-    driver-class-name: "com.mysql.cj.jdbc.Driver"
-    port: 3306
-
-mybatis-plus:
-  configuration:
-    map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-#  security:
-#    oauth2:
-#      resource-server:
-#        jwt:
-#          issuer-uri: "http://127.0.0.1:8081"
-
-logging:
-  level:
-    org:
-      springframework:
-        security: DEBUG

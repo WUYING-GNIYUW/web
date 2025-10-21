@@ -99,10 +99,6 @@
                 <!-- 排除某个依赖 -->
                 <exclusion>
                     <groupId>com.alibaba.cloud</groupId>
-                    <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.alibaba.cloud</groupId>
                     <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
                 </exclusion>
             </exclusions>
