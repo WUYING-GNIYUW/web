@@ -13,10 +13,10 @@ spring:
 #      - "classpath:user_message_properties.yml"
 
 
-  thymeleaf:
-    prefix: classpath:/templates/
-    suffix: .html
-    check-template-location: true
+#  thymeleaf:
+#    prefix: classpath:/templates/
+#    suffix: .html
+#    check-template-location: true
 
 #  cloud:
 #    nacos:
@@ -27,7 +27,7 @@ spring:
   security:
     oauth2:
       authorizationserver:
-        issuer: "http://authorizationserver:8100"
+        issuer: "http://8.138.34.108:8100"
         client:
           #客户端名字
           gatewayClient:
@@ -39,7 +39,7 @@ spring:
               authorization-grant-types:
                 - "authorization_code"
               redirect-uris:
-                - "http://localhost:80/login/oauth2/code/gatewayClient"
+                - "http://8.138.34.108:80/login/oauth2/code/gatewayClient"
 #              post-logout-redirect-uris:
 #                - "http://localhost:8080/home"
               scopes:
@@ -48,7 +48,7 @@ spring:
 ##            require-authorization-consent: true
 
   datasource:
-    url: "jdbc:mysql://localhost:3306/wuying?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+    url: "jdbc:mysql://8.138.34.108:3306/wuying?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
     username: "root"
     password: "000000"
     driver-class-name: "com.mysql.cj.jdbc.Driver"

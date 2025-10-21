@@ -13,7 +13,7 @@ spring:
   config:
     import: "optional:nacos:common.yaml"
   datasource:
-      url: "jdbc:mysql://localhost:3306/wuying?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      url: "jdbc:mysql://8.138.34.108:3306/wuying?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
       username: "root"
       password: "000000"
       driver-class-name: "com.mysql.cj.jdbc.Driver"

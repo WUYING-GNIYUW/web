@@ -12,7 +12,7 @@ spring:
 #      - "classpath:user_message_properties.yml"
   cloud:
     nacos:
-      server-addr: localhost:8848
+      server-addr: 8.138.34.108:8848
     gateway:
       routes:
         - id: user
@@ -47,14 +47,14 @@ spring:
             client-id: "gatewayClient"
             client-secret: "000000"
             authorization-grant-type: "authorization_code"
-            redirect-uri: "http://localhost:80/login/oauth2/code/gatewayClient"
+            redirect-uri: "http://8.138.34.108:80/login/oauth2/code/gatewayClient"
             scope:
               - "openid"
 #              - "profile"
             provider: "authorizationServer"
         provider:
           authorizationServer:
-            issuer-uri: "http://authorizationserver:8100"
+            issuer-uri: "http://8.138.34.108:8100"
 #      resourceserver:
 #        jwt:
 #          issuer-uri: http://127.0.0.1:8081
