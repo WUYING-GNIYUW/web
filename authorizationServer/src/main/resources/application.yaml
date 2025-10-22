@@ -16,7 +16,7 @@ spring:
         enabled: false
       config:
 #        server-addr: 106.53.106.123:8848
-        server-addr: http://106.53.106.123:8848
+        server-addr: 106.53.106.123:8848
 #        namespace: public
 #        group: DEFAULT_GROUP
         file-extension: yaml
