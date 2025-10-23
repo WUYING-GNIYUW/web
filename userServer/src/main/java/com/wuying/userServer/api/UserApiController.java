@@ -37,4 +37,13 @@ public class UserApiController {
     public Result removeUser(@RequestBody User user) {
         return userServiceImpl.removeUser(user);
     }
+
+    @GetMapping("/info_of_conversations")
+    public Result getInfoOfConversations(@RequestBody User user) {
+        return userServiceImpl.removeUser(user);
+    }
+    @PostMapping("/build_temporary_conversations")
+    public Result buildTemporaryConversations(@RequestBody User user) {
+        return userServiceImpl.removeUser(user);
+    }
 }
