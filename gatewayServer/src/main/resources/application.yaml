@@ -12,7 +12,9 @@ spring:
   cloud:
     nacos:
       discovery:
-        enabled: false
+        server-addr: localhost:8848
+        register-enabled: false
+        enabled: true
       config:
         server-addr: 106.53.106.123:8848
         file-extension: yaml

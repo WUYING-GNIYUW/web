@@ -13,6 +13,8 @@ spring:
   cloud:
     nacos:
       discovery:
+        server-addr: localhost:8848
+        register-enabled: false
         enabled: false
       config:
         server-addr: 106.53.106.123:8848
