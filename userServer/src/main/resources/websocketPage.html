@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <title>实时聊天室 - Vue版本</title>
+    <!-- 引入Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- 引入Axios用于AJAX请求 -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- 引入SockJS + STOMP -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <style>
+        :root{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;}
+        body{margin:0;background:#f5f7fb;color:#0f172a;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px 0;}
+        .card{width:980px;max-width:96%;background:#fff;border-radius:12px;box-shadow:0 6px 30px rgba(11,14,23,0.08);padding:20px}
+        .row{display:flex;gap:12px;align-items:center}
+        label{font-size:13px;color:#334155;font-weight:500;display:block;margin-bottom:4px;}
+        input[type=text], textarea, select{padding:8px 10px;border:1px solid #e6e9ef;border-radius:8px;font-size:13px;width:100%;box-sizing:border-box;}
+        button{padding:8px 12px;border-radius:8px;border:0;background:#2563eb;color:#fff;cursor:pointer;font-size:13px;}
+        button.ghost{background:#f1f5f9;color:#0f172a}
+        button:disabled{background:#94a3b8;cursor:not-allowed}
+        .controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+        .panel{margin-top:14px;border-radius:8px;border:1px solid #eef2ff;padding:12px;background:#fbfdff}
+        .log{height:280px;overflow:auto;background:#0b1220;color:#e6e8f0;padding:10px;border-radius:8px;font-family:monospace;font-size:13px;line-height:1.4;}
+        .status{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:600;font-size:12px;}
+        .connected{background:#dcfce7;color:#166534}
+        .connecting{background:#fef3c7;color:#92400e}
+        .closed{background:#fee2e2;color:#7f1d1d}
+        .loading{background:#dbeafe;color:#1e40af}
+        textarea{width:100%;min-height:60px;resize:vertical;}
+        .flex{display:flex;gap:12px}
+        .grow{flex:1}
+        .meta{font-size:12px;color:#64748b}
+        .api-data-section{margin-top:16px;padding:12px;background:#f0f9ff;border-radius:8px;border:1px solid#bae6fd}
+        .api-data-title{font-size:14px;font-weight:600;margin-bottom:8px;color:#0369a1}
+        .api-data-content{font-size:13px;background:#ffffff;padding:8px;border-radius:4px;border:1px solid#e0f2fe;min-height:40px}
+        .message-row{display:flex;gap:8px;align-items:flex-end;}
+        .destination-input{flex:0 0 200px;}
+        .message-input{flex:1;}
+        .chat-message{margin-bottom:8px;padding:8px 12px;border-radius:8px;background:#f8fafc;border-left:3px solid #3b82f6;}
+        .chat-message.self{background:#dbeafe;border-left-color:#1d4ed8;text-align:right;}
+        .message-sender{font-weight:600;color:#1e40af;font-size:12px;}
+        .message-content{margin:4px 0;}
+        .message-time{font-size:11px;color:#64748b;}
+        .chat-container{display:flex;gap:16px;height:400px;}
+        .chat-sidebar{flex:0 0 250px;display:flex;flex-direction:column;}
+        .chat-main{flex:1;display:flex;flex-direction:column;}
+        .online-users{background:#f8fafc;border-radius:8px;padding:12px;margin-top:12px;flex:1;}
+        .user-list{list-style:none;padding:0;margin:8px 0 0 0;}
+        .user-item{padding:6px 8px;border-radius:4px;margin-bottom:4px;font-size:13px;display:flex;align-items:center;gap:6px;}
+        .user-item.active{background:#dbeafe;}
+        .user-avatar{width:20px;height:20px;border-radius:50%;background:#94a3b8;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;}
+        .chat-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+        .chat-title{font-size:16px;font-weight:600;}
+        .chat-messages{flex:1;overflow-y:auto;padding:12px;background:#f8fafc;border-radius:8px;margin-bottom:12px;}
+        .input-group{margin-bottom:8px;}
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="card">
+        <h2>实时聊天室</h2>
+
+        <!-- API数据展示区域 -->
+        <div class="api-data-section" v-if="apiData">
+            <div class="api-data-title">用户对话信息：</div>
+            <div class="api-data-content">{{ apiData }}</div>
+        </div>
+
+        <div class="row" style="justify-content:space-between">
+            <div>
+                <label>WebSocket 端点</label>
+                <input v-model="wsEndpoint" type="text" style="width:240px" placeholder="/conversation/message/1" />
+            </div>
+
+            <div style="text-align:right">
+                <div>连接状态：
+                    <span class="status" :class="connectionStatus.toLowerCase()">{{ connectionStatus }}</span>
+                </div>
+                <div class="controls">
+                    <button @click="connect" :disabled="isConnected">连接</button>
+                    <button @click="disconnect" class="ghost" :disabled="!isConnected">断开</button>
+                    <button @click="clearLog" class="ghost">清空日志</button>
+                    <button @click="fetchApiData" class="ghost" :disabled="apiLoading">
+                        {{ apiLoading ? '请求中...' : '刷新对话' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="chat-container">
+                <!-- 聊天侧边栏 -->
+                <div class="chat-sidebar">
+                    <div>
+                        <label>消息目的地</label>
+                        <input v-model="sendDestination" type="text" placeholder="/app/chat============================================================================" />
+                    </div>
+
+                    <div class="online-users">
+                        <div style="font-weight:600;margin-bottom:8px;">在线用户</div>
+                        <ul class="user-list">
+                            <li class="user-item" :class="{active: selectedUser === user}"
+                                v-for="user in onlineUsers" :key="user"
+                                @click="selectUser(user)">
+                                <div class="user-avatar">{{ user.charAt(0).toUpperCase() }}</div>
+                                {{ user }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 聊天主区域 -->
+                <div class="chat-main">
+                    <div class="chat-header">
+                        <div class="chat-title">
+                            {{ selectedUser ? `与 ${selectedUser} 的对话` : '群聊' }}
+                        </div>
+                        <div class="meta">
+                            消息类型: {{ messageType }}
+                        </div>
+                    </div>
+
+                    <div class="chat-messages">
+                        <div v-for="(msg, index) in chatMessages" :key="index"
+                             class="chat-message" :class="{self: msg.sender === '我'}">
+                            <div class="message-sender">{{ msg.sender }}</div>
+                            <div class="message-content">{{ msg.content }}</div>
+                            <div class="message-time">{{ msg.time }}</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="input-group">
+                            <label>消息内容</label>
+                            <textarea v-model="sendText" placeholder="输入要发送的消息" @keyup.enter="sendMessage"></textarea>
+                        </div>
+
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div class="meta">
+                                {{ sendDestination ? `发送到: ${sendDestination}` : '请先设置消息目的地' }}
+                            </div>
+                            <div>
+                                <button @click="sendMessage" :disabled="!isConnected || !sendDestination">发送</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 日志面板 -->
+        <div class="panel" style="margin-top:16px;">
+            <label>系统日志</label>
+            <div class="log">
+                <div v-for="(logEntry, index) in logs" :key="index">
+                    [{{ logEntry.time }}] {{ logEntry.message }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            // 响应式数据
+            const wsEndpoint = ref('/user/ws');
+            const logs = ref([]);
+            const connectionStatus = ref('CLOSED');
+            const sendText = ref('');
+            const sendDestination = ref('/toBack/conversation/message/1');
+            const stompClient = ref(null);
+            const apiData = ref(null);
+            const apiLoading = ref(false);
+            const chatMessages = ref([]);
+            const onlineUsers = ref(['张三', '李四', '王五', '赵六']);
+            const selectedUser = ref(null);
+            const messageType = ref('群聊消息');
+
+            // 固定API URL
+            const API_URL = '/api/user/info_of_conversations';
+
+            // 计算属性
+            const isConnected = computed(() => connectionStatus.value === 'CONNECTED');
+
+            // 方法
+            const log = (message) => {
+                const time = new Date().toLocaleTimeString();
+                logs.value.push({ time, message });
+                // 限制日志数量，避免内存溢出
+                if (logs.value.length > 1000) {
+                    logs.value = logs.value.slice(-500);
+                }
+            };
+
+            const setStatus = (status) => {
+                connectionStatus.value = status;
+            };
+
+            const connect = () => {
+                const endpoint = wsEndpoint.value || '/user/ws';
+                log(`尝试连接到 SockJS 端点：${endpoint}`);
+                setStatus('CONNECTING');
+
+                const socket = new SockJS(endpoint);
+                stompClient.value = Stomp.over(socket);
+                stompClient.value.debug = null;
+
+                stompClient.value.connect({}, (frame) => {
+                    setStatus('CONNECTED');
+                    log('连接成功: ' + frame);
+
+                    // 订阅公共频道
+                    stompClient.value.subscribe('/topic/public', (message) => {
+                        const msgBody = JSON.parse(message.body);
+                        addChatMessage(msgBody.sender, msgBody.content, new Date().toLocaleTimeString());
+                        log('接收到 /topic/public : ' + message.body + '公共');
+                    });
+
+                    // 订阅私有消息频道
+                    stompClient.value.subscribe('/toUser/queue/messages', (message) => {
+                        const msgBody = JSON.parse(message.body);
+                        addChatMessage(msgBody.sender, msgBody.content, new Date().toLocaleTimeString());
+                        log('接收到 /user/queue/messages : ' + message.body + '私人');
+                    });
+
+                    // 订阅用户状态更新
+                    stompClient.value.subscribe('/topic/user-status', (message) => {
+                        const statusUpdate = JSON.parse(message.body);
+                        log('用户状态更新: ' + message.body);
+                    });
+
+                    log('订阅完成');
+                }, (err) => {
+                    setStatus('CLOSED');
+                    log('连接出错: ' + err);
+                });
+            };
+
+            const disconnect = () => {
+                if (stompClient.value) {
+                    try {
+                        stompClient.value.disconnect(() => {
+                            log('已断开连接');
+                        });
+                    } catch(e) {
+                        log('断开连接时出错: ' + e);
+                    }
+                    setStatus('CLOSED');
+                    stompClient.value = null;
+                } else {
+                    log('当前未连接');
+                }
+            };
+
+            const sendMessage = () => {
+                if (!stompClient.value || !stompClient.value.connected) {
+                    log('未连接，无法发送');
+                    return;
+                }
+
+                const text = sendText.value.trim();
+                const destination = sendDestination.value.trim();
+
+                if (!text) {
+                    log('请输入消息内容');
+                    return;
+                }
+
+                if (!destination) {
+                    log('请输入消息目的地');
+                    return;
+                }
+
+                // 构建消息对象
+                const message = {
+                    content: text,
+                    sender: 'local',
+                    timestamp: new Date().toISOString(),
+                    type: selectedUser.value ? 'PRIVATE' : 'PUBLIC',
+                    recipient: selectedUser.value
+                };
+
+                // 发送消息
+                stompClient.value.send(destination, {}, JSON.stringify(message));
+
+                // 添加到聊天记录
+                addChatMessage('local', text, new Date().toLocaleTimeString());
+
+                log(`发送到 ${destination} : ${text}`);
+                sendText.value = ''; // 清空输入框
+            };
+
+            const addChatMessage = (sender, content, time) => {
+                chatMessages.value.push({
+                    sender,
+                    content,
+                    time
+                });
+
+                // 限制聊天记录数量
+                if (chatMessages.value.length > 200) {
+                    chatMessages.value = chatMessages.value.slice(-100);
+                }
+            };
+
+            const clearLog = () => {
+                logs.value = [];
+            };
+
+            const selectUser = (user) => {
+                selectedUser.value = selectedUser.value === user ? null : user;
+                messageType.value = selectedUser.value ? '私聊消息' : '群聊消息';
+
+                if (selectedUser.value) {
+                    sendDestination.value = `/app/private/${selectedUser.value}`;
+                } else {
+                    sendDestination.value = '/app/chat';
+                }
+
+                log(selectedUser.value ? `切换到与 ${user} 的私聊` : '切换到群聊');
+            };
+
+            // 获取API数据的方法
+            const fetchApiData = async () => {
+                apiLoading.value = true;
+                try {
+                    log('开始请求用户对话信息...');
+                    const response = await axios.get(API_URL);
+                    apiData.value = response.data;
+                    log(`用户对话信息获取成功`);
+
+                    // 模拟将API数据转换为聊天记录
+                    if (response.data && response.data.conversations) {
+                        chatMessages.value = response.data.conversations.map(conv => ({
+                            sender: conv.participant,
+                            content: conv.lastMessage,
+                            time: new Date(conv.timestamp).toLocaleTimeString()
+                        }));
+                    }
+                } catch (error) {
+                    log(`API请求失败: ${error.message}`);
+                    apiData.value = null;
+                } finally {
+                    apiLoading.value = false;
+                }
+            };
+
+            // 生命周期钩子
+            onMounted(() => {
+                log('聊天室加载完成');
+                // 页面加载时自动获取对话信息
+                fetchApiData();
+
+<!--                // 添加一些示例聊天消息-->
+<!--                setTimeout(() => {-->
+<!--                    addChatMessage('系统', '欢迎来到聊天室！', new Date().toLocaleTimeString());-->
+<!--                    addChatMessage('张三', '大家好！', new Date().toLocaleTimeString());-->
+<!--                    addChatMessage('李四', '今天天气不错', new Date().toLocaleTimeString());-->
+<!--                }, 1000);-->
+            });
+
+            // 返回所有在模板中使用的数据和方法
+            return {
+                wsEndpoint,
+                logs,
+                connectionStatus,
+                sendText,
+                sendDestination,
+                apiData,
+                apiLoading,
+                chatMessages,
+                onlineUsers,
+                selectedUser,
+                messageType,
+                isConnected,
+                connect,
+                disconnect,
+                sendMessage,
+                clearLog,
+                fetchApiData,
+                selectUser
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
