@@ -1,4 +1,8 @@
 package com.wuying.userServer.controller;
+import com.alibaba.nacos.api.exception.NacosException;
+import com.alibaba.nacos.api.naming.NamingFactory;
+import com.alibaba.nacos.api.naming.NamingService;
+import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.wuying.common.pojo.Result;
 import com.wuying.common.pojo.User;
 import com.wuying.common.util.Util;
@@ -7,7 +11,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +25,7 @@ import java.util.List;
 @Tag(name = "Foruser")
 public class UserController {
     private final UserServiceImpl userServiceImpl;
+    private final Environment env;
 
     @Operation(summary = "普通user请求")
     @GetMapping("/test/{id}")
@@ -58,9 +65,31 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Accel-Redirect", internalUri);
 
-        // 可选：后端希望客户端收到的头（Cache-Control / Content-Disposition）
-//        headers.add(HttpHeaders.CACHE_CONTROL, "private, max-age=60");
-        // headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report.pdf\"");
+        String instanceId = "";
+//        nacosRegistration.
+//        String instanceId = registration.getInstanceId();
+//        System.out.println(instanceId);
+//        System.out.println("n"+ninstanceId);
+        NamingService namingService = null;
+        try {
+            namingService = NamingFactory.createNamingService(env.getProperty("spring.cloud.nacos.discovery.server-addr") + ":8848");
+            String instanceIP = env.getProperty("spring.cloud.nacos.discovery.ip");
+            List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
+            for(Instance i:allInstances){
+                if (i.getIp().equals(instanceIP)){
+                    instanceId = i.getInstanceId();
+                }
+            }
+        } catch (NacosException e) {
+            throw new RuntimeException(e);
+        }
+        ResponseCookie cookie = ResponseCookie.from("sc-lb-itc-id", instanceId)
+                .path("/")
+                .maxAge(24 * 60 * 60)
+                .httpOnly(true)
+                // .secure(true)   // 如果需要Secure，取消注释
+                .build();
+        headers.add(HttpHeaders.SET_COOKIE,cookie.toString());
 
         return ResponseEntity.ok().headers(headers).build();
     }

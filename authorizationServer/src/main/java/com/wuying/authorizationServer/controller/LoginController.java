@@ -14,10 +14,6 @@ public class LoginController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Accel-Redirect", internalUri);
 
-        // 可选：后端希望客户端收到的头（Cache-Control / Content-Disposition）
-//        headers.add(HttpHeaders.CACHE_CONTROL, "private, max-age=60");
-        // headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report.pdf\"");
-
         return ResponseEntity.ok().headers(headers).build();
     }
 }

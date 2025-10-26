@@ -14,7 +14,7 @@ spring:
       configurations: request-based-sticky-session
       sticky-session:
         add-service-instance-cookie: true
-        instance-id-cookie-name: sc-lb-instance-id
+        instance-id-cookie-name: sc-lb-itc-id
     nacos:
       discovery:
         server-addr: 106.53.106.123:8848
