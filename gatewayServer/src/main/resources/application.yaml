@@ -10,6 +10,11 @@ spring:
 #      - "classpath:jwt_properties.yml"
 #      - "classpath:user_message_properties.yml"
   cloud:
+    loadbalancer:
+      configurations: request-based-sticky-session
+      sticky-session:
+        add-service-instance-cookie: true
+        instance-id-cookie-name: sc-lb-instance-id
     nacos:
       discovery:
         server-addr: 106.53.106.123:8848
