@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @PostMapping("/startSticky")
-    public ResponseEntity<Void> startSticky(@RequestBody Instance instance) {
-        return userServiceImpl.startSticky();
+    public ResponseEntity<Void> startSticky(@RequestBody Instance chosenInstance) {
+        return userServiceImpl.startSticky(chosenInstance);
     }
 }

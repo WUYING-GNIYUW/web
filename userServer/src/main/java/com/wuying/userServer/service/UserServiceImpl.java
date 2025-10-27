@@ -73,15 +73,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     }
 
 
-    public ResponseEntity<Void> startSticky() {
+    public ResponseEntity<Void> startSticky(Instance chosenInstance) {
         try {
             HttpHeaders headers = new HttpHeaders();
             NamingService namingService = Util.getNamingService(env);
-            String instanceIP = env.getProperty("spring.cloud.nacos.discovery.ip");
+            String instanceIP = chosenInstance.getIp();
             List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
             Optional<Instance> firstInstance = allInstances.stream().filter(i -> i.getIp().equals(instanceIP)).findFirst();
-            String instanceId = firstInstance.orElseThrow(RuntimeException::new).getInstanceId();
-            ResponseCookie cookie = instanceId != null ? ResponseCookie.from("sc-lb-itc-id", instanceId)
+            Instance instance = firstInstance.orElseThrow(RuntimeException::new);
+            ResponseCookie cookie = instance.getInstanceId() != null ? ResponseCookie.from("sc-lb-itc-id", instance.getInstanceId())
                     .path("/")
                     .maxAge(24 * 60 * 60)
                     .httpOnly(true)

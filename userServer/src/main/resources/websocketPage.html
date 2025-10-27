@@ -233,15 +233,20 @@
                     // 根据选择的实例构建请求URL
                     let stickyUrl = '/user/startSticky';
                     if (selectedInstance.value) {
-                        stickyUrl = `http://${selectedInstance.value.ip}:${selectedInstance.value.port}${stickyUrl}`;
+                        stickyUrl = `http://${selectedInstance.value.ip}${stickyUrl}`;
                     }
 
-                    const response = await axios.post(stickyUrl, {}, {
-                        withCredentials: true, // 确保携带cookie
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
+                const response = await axios.post(stickyUrl, {
+                    instanceId: selectedInstance.instanceId,
+                    ip: selectedInstance.ip,
+                    port: selectedInstance.port,
+                    serviceName: selectedInstance.serviceName
+                }, {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
                     log('粘性会话请求成功');
 
