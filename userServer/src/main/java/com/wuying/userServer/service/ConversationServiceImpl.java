@@ -11,14 +11,10 @@ import com.wuying.userServer.mapper.ConversationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -48,6 +44,7 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
             NamingService namingService = Util.getNamingService(env);
             String instanceIP = env.getProperty("spring.cloud.nacos.discovery.ip");
             List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
+            allInstances.stream().forEach(i->System.out.println(i.toString()));
             return Result.<List<Instance>>builder().data(allInstances).build();
         }
         catch (NacosException e) {

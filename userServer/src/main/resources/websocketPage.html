@@ -73,7 +73,7 @@
                     <option value="">请选择服务实例</option>
                     <option v-for="instance in instances" :key="instance.instanceId" :value="instance.instanceId">
                         {{ instance.instanceName || instance.instanceId }}
-                        ({{ instance.host }}:{{ instance.port }})
+                        ({{ instance.ip }}:{{ instance.port }})
                     </option>
                 </select>
                 <button @click="fetchInstances" :disabled="instancesLoading">
@@ -82,8 +82,8 @@
             </div>
             <div v-if="selectedInstance" class="selected-instance-info">
                 <strong>当前选择实例:</strong> {{ selectedInstance.instanceName || selectedInstance.instanceId }}<br>
-                <strong>地址:</strong> {{ selectedInstance.host }}:{{ selectedInstance.port }}<br>
-                <strong>状态:</strong> {{ selectedInstance.status || '未知' }}<br>
+                <strong>地址:</strong> {{ selectedInstance.ip }}:{{ selectedInstance.port }}<br>
+                <strong>健康:</strong> {{ selectedInstance.healthy || '未知' }}<br>
                 <strong>元数据:</strong> {{ selectedInstance.metadata ? JSON.stringify(selectedInstance.metadata) : '无' }}
             </div>
         </div>
@@ -191,7 +191,7 @@
             const logs = ref([]);
             const connectionStatus = ref('CLOSED');
             const sendText = ref('');
-            const sendDestination = ref('/toBack/conversation/message/1');
+            const sendDestination = ref('/toBack/user/conversation/message/1');
             const stompClient = ref(null);
             const chatMessages = ref([]);
             const onlineUsers = ref(['张三', '李四', '王五', '赵六']);
@@ -206,7 +206,7 @@
             const instancesLoading = ref(false);
 
             // 固定API URL
-            const INSTANCES_URL = '/conversation/getInstances';
+            const INSTANCES_URL = '/user/conversation/getInstances';
 
             // 计算属性
             const isConnected = computed(() => connectionStatus.value === 'CONNECTED');
@@ -233,7 +233,7 @@
                     // 根据选择的实例构建请求URL
                     let stickyUrl = '/user/startSticky';
                     if (selectedInstance.value) {
-                        stickyUrl = `http://${selectedInstance.value.host}:${selectedInstance.value.port}${stickyUrl}`;
+                        stickyUrl = `http://${selectedInstance.value.ip}:${selectedInstance.value.port}${stickyUrl}`;
                     }
 
                     const response = await axios.post(stickyUrl, {}, {
@@ -405,7 +405,7 @@
                 messageType.value = selectedUser.value ? '私聊消息' : '群聊消息';
 
                 if (selectedUser.value) {
-                    sendDestination.value = `/toBack/conversation/message/${selectedUser.value}`;
+                    sendDestination.value = `/toBack/user/conversation/message/${selectedUser.value}`;
                 }
 
                 log(selectedUser.value ? `切换到与 ${user} 的私聊` : '切换到群聊');
@@ -449,7 +449,7 @@
                     log(`已选择实例: ${selectedInstance.value.instanceName || selectedInstance.value.instanceId}`);
 
                     // 自动更新 WebSocket 连接地址
-                    const newWsEndpoint = `http://${selectedInstance.value.host}:${selectedInstance.value.port}/user/ws/`;
+                    const newWsEndpoint = `http://${selectedInstance.value.ip}:${selectedInstance.value.port}/user/ws/`;
                     wsEndpoint.value = newWsEndpoint;
                     log(`WebSocket 地址已更新为: ${newWsEndpoint}`);
 

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/conversation")
+@RequestMapping("/user/conversation")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 //@RequestMapping("/conversation")
 public class ConversationController {
@@ -29,7 +29,7 @@ public class ConversationController {
     public Result buildTemporaryConversations(@RequestParam String contactUserId, @AuthenticationPrincipal Jwt jwt) {
         return conversationServiceImpl.buildTemporaryConversations(jwt.getClaimAsString("userId"),contactUserId);
     }
-    @MessageMapping("/conversation/message/{userId}")
+    @MessageMapping("/user/conversation/message/{userId}")
     public Result forwardMessage(@DestinationVariable String userId, @Payload String message) {
         return conversationServiceImpl.forwardMessage(userId, message);
     }
