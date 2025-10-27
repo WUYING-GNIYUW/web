@@ -1,5 +1,6 @@
 package com.wuying.userServer.controller;
 
+import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.wuying.common.pojo.Result;
 import com.wuying.userServer.service.ConversationServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +10,12 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.util.List;
+
+@RestController
+@RequestMapping("/conversation")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 //@RequestMapping("/conversation")
 public class ConversationController {
@@ -27,7 +30,11 @@ public class ConversationController {
         return conversationServiceImpl.buildTemporaryConversations(jwt.getClaimAsString("userId"),contactUserId);
     }
     @MessageMapping("/conversation/message/{userId}")
-    public Result accpetMessage(@DestinationVariable String userId, @Payload String message) {
+    public Result forwardMessage(@DestinationVariable String userId, @Payload String message) {
         return conversationServiceImpl.forwardMessage(userId, message);
+    }
+    @GetMapping("/getInstances")
+    public Result<List<Instance>> getInstances() {
+        return conversationServiceImpl.getInstances();
     }
 }

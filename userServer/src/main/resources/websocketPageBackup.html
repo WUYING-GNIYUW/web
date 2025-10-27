@@ -33,6 +33,9 @@
         .flex{display:flex;gap:12px}
         .grow{flex:1}
         .meta{font-size:12px;color:#64748b}
+        .api-data-section{margin-top:16px;padding:12px;background:#f0f9ff;border-radius:8px;border:1px solid#bae6fd}
+        .api-data-title{font-size:14px;font-weight:600;margin-bottom:8px;color:#0369a1}
+        .api-data-content{font-size:13px;background:#ffffff;padding:8px;border-radius:4px;border:1px solid#e0f2fe;min-height:40px}
         .message-row{display:flex;gap:8px;align-items:flex-end;}
         .destination-input{flex:0 0 200px;}
         .message-input{flex:1;}
@@ -53,11 +56,6 @@
         .chat-title{font-size:16px;font-weight:600;}
         .chat-messages{flex:1;overflow-y:auto;padding:12px;background:#f8fafc;border-radius:8px;margin-bottom:12px;}
         .input-group{margin-bottom:8px;}
-        .instances-section{margin-top:16px;padding:12px;background:#f0fdf4;border-radius:8px;border:1px solid#bbf7d0}
-        .instances-title{font-size:14px;font-weight:600;margin-bottom:8px;color:#166534}
-        .instances-controls{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
-        .instance-select{flex:1;}
-        .selected-instance-info{background:#ecfdf5;padding:8px;border-radius:4px;border:1px solid#a7f3d0;margin-top:8px;font-size:12px;}
     </style>
 </head>
 <body>
@@ -65,27 +63,10 @@
     <div class="card">
         <h2>实时聊天室</h2>
 
-        <!-- 实例选择区域 -->
-        <div class="instances-section">
-            <div class="instances-title">服务实例管理</div>
-            <div class="instances-controls">
-                <select v-model="selectedInstanceId" class="instance-select" @change="onInstanceChange">
-                    <option value="">请选择服务实例</option>
-                    <option v-for="instance in instances" :key="instance.instanceId" :value="instance.instanceId">
-                        {{ instance.instanceName || instance.instanceId }}
-                        ({{ instance.host }}:{{ instance.port }})
-                    </option>
-                </select>
-                <button @click="fetchInstances" :disabled="instancesLoading">
-                    {{ instancesLoading ? '加载中...' : '刷新实例' }}
-                </button>
-            </div>
-            <div v-if="selectedInstance" class="selected-instance-info">
-                <strong>当前选择实例:</strong> {{ selectedInstance.instanceName || selectedInstance.instanceId }}<br>
-                <strong>地址:</strong> {{ selectedInstance.host }}:{{ selectedInstance.port }}<br>
-                <strong>状态:</strong> {{ selectedInstance.status || '未知' }}<br>
-                <strong>元数据:</strong> {{ selectedInstance.metadata ? JSON.stringify(selectedInstance.metadata) : '无' }}
-            </div>
+        <!-- API数据展示区域 -->
+        <div class="api-data-section" v-if="apiData">
+            <div class="api-data-title">用户对话信息：</div>
+            <div class="api-data-content">{{ apiData }}</div>
         </div>
 
         <div class="row" style="justify-content:space-between">
@@ -99,11 +80,12 @@
                     <span class="status" :class="connectionStatus.toLowerCase()">{{ connectionStatus }}</span>
                 </div>
                 <div class="controls">
-                    <button @click="connect" :disabled="isConnected || isConnecting">
-                        {{ isConnecting ? '连接中...' : '连接' }}
-                    </button>
+                    <button @click="connect" :disabled="isConnected">连接</button>
                     <button @click="disconnect" class="ghost" :disabled="!isConnected">断开</button>
                     <button @click="clearLog" class="ghost">清空日志</button>
+                    <button @click="fetchApiData" class="ghost" :disabled="apiLoading">
+                        {{ apiLoading ? '请求中...' : '刷新对话' }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -114,7 +96,7 @@
                 <div class="chat-sidebar">
                     <div>
                         <label>消息目的地</label>
-                        <input v-model="sendDestination" type="text" placeholder="/app/chat" />
+                        <input v-model="sendDestination" type="text" placeholder="/app/chat============================================================================" />
                     </div>
 
                     <div class="online-users">
@@ -182,7 +164,7 @@
 </div>
 
 <script>
-    const { createApp, ref, computed, onMounted, watch } = Vue;
+    const { createApp, ref, computed, onMounted } = Vue;
 
     createApp({
         setup() {
@@ -193,20 +175,15 @@
             const sendText = ref('');
             const sendDestination = ref('/toBack/conversation/message/1');
             const stompClient = ref(null);
+            const apiData = ref(null);
+            const apiLoading = ref(false);
             const chatMessages = ref([]);
-            const onlineUsers = ref(['张三', '李四', '王五', '赵六']);
+            const onlineUsers = ref(['1', '2', '3', '4']);
             const selectedUser = ref(null);
             const messageType = ref('群聊消息');
-            const isConnecting = ref(false); // 新增：连接中状态
-
-            // 新增的实例相关数据
-            const instances = ref([]);
-            const selectedInstanceId = ref('');
-            const selectedInstance = ref(null);
-            const instancesLoading = ref(false);
 
             // 固定API URL
-            const INSTANCES_URL = '/conversation/getInstances';
+            const API_URL = '/conversation/getInstances';
 
             // 计算属性
             const isConnected = computed(() => connectionStatus.value === 'CONNECTED');
@@ -225,108 +202,44 @@
                 connectionStatus.value = status;
             };
 
-            // 发送粘性会话请求
-            const startStickySession = async () => {
-                try {
-                    log('开始请求粘性会话...');
-
-                    // 根据选择的实例构建请求URL
-                    let stickyUrl = '/user/startSticky';
-                    if (selectedInstance.value) {
-                        stickyUrl = `http://${selectedInstance.value.host}:${selectedInstance.value.port}${stickyUrl}`;
-                    }
-
-                    const response = await axios.post(stickyUrl, {}, {
-                        withCredentials: true, // 确保携带cookie
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    log('粘性会话请求成功');
-
-                    // 检查响应头中是否有set-cookie
-                    if (response.headers && response.headers['set-cookie']) {
-                        log('收到 set-cookie 头，粘性会话已建立');
-                        console.log('Set-Cookie:', response.headers['set-cookie']);
-                    }
-
-                    return true;
-                } catch (error) {
-                    log(`粘性会话请求失败: ${error.message}`);
-                    console.error('粘性会话错误:', error);
-                    return false;
-                }
-            };
-
-            const connect = async () => {
-                // 如果正在连接中，直接返回
-                if (isConnecting.value) {
-                    return;
-                }
-
-                isConnecting.value = true;
+            const connect = () => {
+                const endpoint = wsEndpoint.value || '/user/ws';
+                log(`尝试连接到 SockJS 端点：${endpoint}`);
                 setStatus('CONNECTING');
 
-                try {
-                    // 第一步：先请求粘性会话
-                    const stickySuccess = await startStickySession();
+                const socket = new SockJS(endpoint);
+                stompClient.value = Stomp.over(socket);
+                stompClient.value.debug = null;
 
-                    if (!stickySuccess) {
-                        log('粘性会话建立失败，停止连接流程');
-                        setStatus('CLOSED');
-                        isConnecting.value = false;
-                        return;
-                    }
+                stompClient.value.connect({}, (frame) => {
+                    setStatus('CONNECTED');
+                    log('连接成功: ' + frame);
 
-                    // 第二步：建立WebSocket连接
-                    const endpoint = wsEndpoint.value || '/user/ws';
-                    log(`尝试连接到 SockJS 端点：${endpoint}`);
-
-                    // 添加延迟，确保cookie已设置
-                    await new Promise(resolve => setTimeout(resolve, 100));
-
-                    const socket = new SockJS(endpoint);
-                    stompClient.value = Stomp.over(socket);
-                    stompClient.value.debug = null;
-
-                    stompClient.value.connect({}, (frame) => {
-                        setStatus('CONNECTED');
-                        isConnecting.value = false;
-                        log('连接成功: ' + frame);
-
-                        // 订阅公共频道
-                        stompClient.value.subscribe('/topic/public', (message) => {
-                            const msgBody = JSON.parse(message.body);
-                            addChatMessage(msgBody.sender, msgBody.content, new Date().toLocaleTimeString());
-                            log('接收到 /topic/public : ' + message.body + '公共');
-                        });
-
-                        // 订阅私有消息频道
-                        stompClient.value.subscribe('/toUser/queue/messages', (message) => {
-                            const msgBody = JSON.parse(message.body);
-                            addChatMessage(msgBody.sender, msgBody.content, new Date().toLocaleTimeString());
-                            log('接收到 /user/queue/messages : ' + message.body + '私人');
-                        });
-
-                        // 订阅用户状态更新
-                        stompClient.value.subscribe('/topic/user-status', (message) => {
-                            const statusUpdate = JSON.parse(message.body);
-                            log('用户状态更新: ' + message.body);
-                        });
-
-                        log('订阅完成');
-                    }, (err) => {
-                        setStatus('CLOSED');
-                        isConnecting.value = false;
-                        log('连接出错: ' + err);
+                    // 订阅公共频道
+                    stompClient.value.subscribe('/topic/public', (message) => {
+                        const msgBody = JSON.parse(message.body);
+                        addChatMessage(msgBody.sender, msgBody.content, new Date().toLocaleTimeString());
+                        log('接收到 /topic/public : ' + message.body + '公共');
                     });
 
-                } catch (error) {
+                    // 订阅私有消息频道
+                    stompClient.value.subscribe('/toUser/queue/messages', (message) => {
+                        const msgBody = JSON.parse(message.body);
+                        addChatMessage(msgBody.sender, msgBody.content, new Date().toLocaleTimeString());
+                        log('接收到 /user/queue/messages : ' + message.body + '私人');
+                    });
+
+                    // 订阅用户状态更新
+                    stompClient.value.subscribe('/topic/user-status', (message) => {
+                        const statusUpdate = JSON.parse(message.body);
+                        log('用户状态更新: ' + message.body);
+                    });
+
+                    log('订阅完成');
+                }, (err) => {
                     setStatus('CLOSED');
-                    isConnecting.value = false;
-                    log('连接过程中发生异常: ' + error.message);
-                }
+                    log('连接出错: ' + err);
+                });
             };
 
             const disconnect = () => {
@@ -405,78 +318,52 @@
                 messageType.value = selectedUser.value ? '私聊消息' : '群聊消息';
 
                 if (selectedUser.value) {
-                    sendDestination.value = `/toBack/conversation/message/${selectedUser.value}`;
+                    sendDestination.value = `/toBack/conversation/${selectedUser.value}`;
                 }
+<!--                else {-->
+<!--                    sendDestination.value = '/app/chat';-->
+<!--                }-->
 
                 log(selectedUser.value ? `切换到与 ${user} 的私聊` : '切换到群聊');
             };
 
-            // 获取实例列表的方法
-            const fetchInstances = async () => {
-                instancesLoading.value = true;
+            // 获取API数据的方法
+            const fetchApiData = async () => {
+                apiLoading.value = true;
                 try {
-                    log('开始请求服务实例列表...');
-                    const response = await axios.get(INSTANCES_URL);
+                    log('开始请求用户对话信息...');
+                    const response = await axios.get(API_URL);
+                    apiData.value = response.data;
+                    log(`用户对话信息获取成功`);
 
-                    if (response.data && response.data.data) {
-                        instances.value = response.data.data;
-                        log(`获取到 ${instances.value.length} 个服务实例`);
-                    } else {
-                        // 如果返回格式不同，尝试直接使用数据
-                        instances.value = Array.isArray(response.data) ? response.data : [response.data];
-                        log(`获取到 ${instances.value.length} 个服务实例（直接解析）`);
-                    }
-
-                    // 如果有实例但未选择，自动选择第一个
-                    if (instances.value.length > 0 && !selectedInstanceId.value) {
-                        selectedInstanceId.value = instances.value[0].instanceId;
-                        onInstanceChange();
+                    // 模拟将API数据转换为聊天记录
+                    if (response.data && response.data.conversations) {
+                        chatMessages.value = response.data.conversations.map(conv => ({
+                            sender: conv.participant,
+                            content: conv.lastMessage,
+                            time: new Date(conv.timestamp).toLocaleTimeString()
+                        }));
                     }
                 } catch (error) {
-                    log(`获取实例列表失败: ${error.message}`);
-                    instances.value = [];
+                    log(`API请求失败: ${error.message}`);
+                    apiData.value = null;
                 } finally {
-                    instancesLoading.value = false;
-                }
-            };
-
-            // 实例选择变化处理
-            const onInstanceChange = () => {
-                if (selectedInstanceId.value) {
-                    selectedInstance.value = instances.value.find(instance =>
-                        instance.instanceId === selectedInstanceId.value
-                    );
-                    log(`已选择实例: ${selectedInstance.value.instanceName || selectedInstance.value.instanceId}`);
-
-                    // 自动更新 WebSocket 连接地址
-                    const newWsEndpoint = `http://${selectedInstance.value.host}:${selectedInstance.value.port}/user/ws/`;
-                    wsEndpoint.value = newWsEndpoint;
-                    log(`WebSocket 地址已更新为: ${newWsEndpoint}`);
-
-                    // 如果当前已连接，自动断开连接
-                    if (isConnected.value) {
-                        log('检测到当前已连接，自动断开现有连接');
-                        disconnect();
-                    }
-
-                    // 这里可以将选择的实例信息存储到全局变量或用于其他用途
-                    window.selectedServiceInstance = selectedInstance.value;
-                    console.log('选择的实例已存储到 window.selectedServiceInstance:', window.selectedServiceInstance);
-                } else {
-                    selectedInstance.value = null;
-                    window.selectedServiceInstance = null;
-
-                    // 清空选择时，恢复默认 WebSocket 地址
-                    wsEndpoint.value = '/user/ws';
-                    log('已清空实例选择，WebSocket 地址恢复为默认值');
+                    apiLoading.value = false;
                 }
             };
 
             // 生命周期钩子
             onMounted(() => {
                 log('聊天室加载完成');
-                // 页面加载时自动获取实例列表
-                fetchInstances();
+                // 页面加载时自动获取对话信息
+                fetchApiData();
+
+<!--                // 添加一些示例聊天消息-->
+<!--                setTimeout(() => {-->
+<!--                    addChatMessage('系统', '欢迎来到聊天室！', new Date().toLocaleTimeString());-->
+<!--                    addChatMessage('张三', '大家好！', new Date().toLocaleTimeString());-->
+<!--                    addChatMessage('李四', '今天天气不错', new Date().toLocaleTimeString());-->
+<!--                }, 1000);-->
             });
 
             // 返回所有在模板中使用的数据和方法
@@ -486,23 +373,19 @@
                 connectionStatus,
                 sendText,
                 sendDestination,
+                apiData,
+                apiLoading,
                 chatMessages,
                 onlineUsers,
                 selectedUser,
                 messageType,
-                instances,
-                selectedInstanceId,
-                selectedInstance,
-                instancesLoading,
                 isConnected,
-                isConnecting,
                 connect,
                 disconnect,
                 sendMessage,
                 clearLog,
-                fetchInstances,
-                selectUser,
-                onInstanceChange
+                fetchApiData,
+                selectUser
             };
         }
     }).mount('#app');

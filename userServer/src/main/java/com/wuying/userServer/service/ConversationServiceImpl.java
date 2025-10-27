@@ -1,18 +1,30 @@
 package com.wuying.userServer.service;
 
+import com.alibaba.nacos.api.exception.NacosException;
+import com.alibaba.nacos.api.naming.NamingService;
+import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuying.common.pojo.Conversation;
 import com.wuying.common.pojo.Result;
+import com.wuying.common.util.Util;
 import com.wuying.userServer.mapper.ConversationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Conversation> implements ConversationService {
     private final SimpMessagingTemplate messagingTemplate;
+    private final Environment env;
     @Override
     public Result buildTemporaryConversations(String hostUserId, String ContactUserId) {
         save(Conversation.builder().build());
@@ -29,6 +41,19 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
         messagingTemplate.convertAndSendToUser(userId,"/queue/messages",message);
         System.out.println(userId+"------"+message);
         return Result.builder().build();
+    }
+    @Override
+    public Result<List<Instance>> getInstances(){
+        try {
+            NamingService namingService = Util.getNamingService(env);
+            String instanceIP = env.getProperty("spring.cloud.nacos.discovery.ip");
+            List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
+            return Result.<List<Instance>>builder().data(allInstances).build();
+        }
+        catch (NacosException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }
