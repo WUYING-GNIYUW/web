@@ -38,7 +38,7 @@ public class SpringSecurityConfigure {
                                         //)
                         )
                 ).authorizeHttpRequests((authorize) ->
-                        authorize.requestMatchers("error/**","/favicon.ico","/public/**").permitAll()
+                        authorize.requestMatchers("error/**","/favicon.ico").permitAll()
                                 .anyRequest().authenticated()
                 );
 //               ).exceptionHandling(exceptions ->
@@ -91,14 +91,14 @@ public class SpringSecurityConfigure {
 //        );
 //
 //        http.formLogin(Customizer.withDefaults());
-        http.formLogin(form ->
-                form
-                        .loginPage("/public/static/html/loginPage")
-                        .loginProcessingUrl("/login")
-                        .usernameParameter("userId")
-                        .permitAll()
-        );
-        http.userDetailsService(dbUserDetailsManager);
+//        http.formLogin(form ->
+//                form
+//                        .loginPage("/public/static/html/loginPage")
+//                        .loginProcessingUrl("/login")
+//                        .usernameParameter("userId")
+//                        .permitAll()
+//        );
+//        http.userDetailsService(dbUserDetailsManager);
 //        http.exceptionHandling(exception ->
 //                exception
 //                        //.authenticationEntryPoint(new MyAuthenticationEntryPoint())
