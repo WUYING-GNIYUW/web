@@ -15,9 +15,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 
+import java.security.Principal;
 import java.util.*;
 
 @Service
@@ -64,22 +66,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         }
     }
 
-    public ResponseEntity<Void> getWebsocketPage() {
-        String internalUri = "/internal_protected/" + Util.encodePath("/websocketPage.html");
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Accel-Redirect", internalUri);
-
-        return ResponseEntity.ok().headers(headers).build();
-    }
-
-
-    public ResponseEntity<Void> startSticky(Instance chosenInstance) {
+    public ResponseEntity<Void> startSticky(Instance chosenInstance,Jwt jwt, Principal principal) {
         try {
             HttpHeaders headers = new HttpHeaders();
             NamingService namingService = Util.getNamingService(env);
-            String instanceIP = chosenInstance.getIp();
             List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
-            Optional<Instance> firstInstance = allInstances.stream().filter(i -> i.getIp().equals(instanceIP)).findFirst();
+            Optional<Instance> firstInstance = allInstances.stream().filter(i -> i.getIp().equals(chosenInstance.getIp())).findFirst();
             Instance instance = firstInstance.orElseThrow(RuntimeException::new);
             ResponseCookie cookie = instance.getInstanceId() != null ? ResponseCookie.from("sc-lb-itc-id", instance.getInstanceId())
                     .path("/")

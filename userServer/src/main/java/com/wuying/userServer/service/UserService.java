@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.wuying.common.pojo.Result;
 import com.wuying.common.pojo.User;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -13,6 +16,5 @@ public interface UserService extends IService<User> {
     Result<Boolean> addUser(User addUser);
     Result<List<User>> getUsers(User queryUser);
     Result<Boolean> removeUser(User user);
-    ResponseEntity<Void> getWebsocketPage();
-    ResponseEntity<Void> startSticky(Instance chosenInstance);
+    ResponseEntity<Void> startSticky(Instance chosenInstance,Jwt jwt, Principal principal);
 }

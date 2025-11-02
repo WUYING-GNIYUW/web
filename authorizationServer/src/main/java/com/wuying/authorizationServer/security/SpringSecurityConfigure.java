@@ -38,7 +38,7 @@ public class SpringSecurityConfigure {
                                         //)
                         )
                 ).authorizeHttpRequests((authorize) ->
-                        authorize.requestMatchers("error/**","/favicon.ico").permitAll()
+                        authorize.requestMatchers("error/**","/favicon.ico","/public/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 //               ).exceptionHandling(exceptions ->
@@ -50,7 +50,7 @@ public class SpringSecurityConfigure {
         //http.oauth2Login(Customizer.withDefaults());
         http.formLogin(form ->
                 form
-                        .loginPage("/getLoginPage")
+                        .loginPage("/public/static/html/loginPage")
                         .loginProcessingUrl("/login")
                         .usernameParameter("userId") // 使用我们自己的登录页
                         .permitAll()
@@ -67,7 +67,7 @@ public class SpringSecurityConfigure {
                 .securityMatcher("/**")
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/error/**","/favicon.ico","/getLoginPage","/hello").permitAll()
+                                .requestMatchers("/error/**","/favicon.ico","/hello","/public/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 //        http.requestCache(Cache -> Cache.
@@ -93,8 +93,8 @@ public class SpringSecurityConfigure {
 //        http.formLogin(Customizer.withDefaults());
         http.formLogin(form ->
                 form
-                        .loginPage("/getLoginPage")
-                        .loginProcessingUrl("/login")// 使用我们自己的登录页
+                        .loginPage("/public/static/html/loginPage")
+                        .loginProcessingUrl("/login")
                         .usernameParameter("userId")
                         .permitAll()
         );
@@ -113,7 +113,7 @@ public class SpringSecurityConfigure {
         //http.addFilterBefore(new ParseJwtFilter(), UsernamePasswordAuthenticationFilter.class);
         //http.addFilterAfter(new SetJwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
-
+        http.cors(AbstractHttpConfigurer::disable);
         http.csrf(AbstractHttpConfigurer::disable);
 
 

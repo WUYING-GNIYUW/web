@@ -194,7 +194,7 @@
             const sendDestination = ref('/toBack/user/conversation/message/1');
             const stompClient = ref(null);
             const chatMessages = ref([]);
-            const onlineUsers = ref(['张三', '李四', '王五', '赵六']);
+            const onlineUsers = ref(['1', '2', '3', '4']);
             const selectedUser = ref(null);
             const messageType = ref('群聊消息');
             const isConnecting = ref(false); // 新增：连接中状态
@@ -232,15 +232,15 @@
 
                     // 根据选择的实例构建请求URL
                     let stickyUrl = '/user/startSticky';
-                    if (selectedInstance.value) {
-                        stickyUrl = `http://${selectedInstance.value.ip}${stickyUrl}`;
-                    }
+<!--                    if (selectedInstance.value) {-->
+<!--                        stickyUrl = `http://${selectedInstance.value.ip}${stickyUrl}`;-->
+<!--                    }-->
 
                 const response = await axios.post(stickyUrl, {
-                    instanceId: selectedInstance.instanceId,
-                    ip: selectedInstance.ip,
-                    port: selectedInstance.port,
-                    serviceName: selectedInstance.serviceName
+                    instanceId: selectedInstance.value.instanceId,
+                    ip: selectedInstance.value.ip,
+                    port: selectedInstance.value.port,
+                    serviceName: selectedInstance.value.serviceName
                 }, {
                     withCredentials: true,
                     headers: {
@@ -454,7 +454,7 @@
                     log(`已选择实例: ${selectedInstance.value.instanceName || selectedInstance.value.instanceId}`);
 
                     // 自动更新 WebSocket 连接地址
-                    const newWsEndpoint = `http://${selectedInstance.value.ip}:${selectedInstance.value.port}/user/ws/`;
+<!--                    const newWsEndpoint = `http://${selectedInstance.value.ip}:${selectedInstance.value.port}/user/ws/`;-->
                     wsEndpoint.value = newWsEndpoint;
                     log(`WebSocket 地址已更新为: ${newWsEndpoint}`);
 

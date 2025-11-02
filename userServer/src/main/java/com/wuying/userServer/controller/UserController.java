@@ -10,8 +10,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +27,7 @@ public class UserController {
 
     @Operation(summary = "普通user请求")
     @GetMapping("/test/{id}")
-    public Result<User> getByIdJustForTest(@PathVariable(value = "id") Long id) {
+    public Result<User> getByIdJustForTest(@PathVariable("id") Long id) {
         User user = userServiceImpl.getById(id);
 
         return Result.<User>builder().data(user).build();
@@ -60,13 +63,9 @@ public class UserController {
         return Result.<Boolean>builder().data(userServiceImpl.removeById(user)).build();
     }
 
-    @GetMapping("/getWebsocketPage")
-    public ResponseEntity<Void> getWebsocketPage() {
-        return userServiceImpl.getWebsocketPage();
-    }
 
     @PostMapping("/startSticky")
-    public ResponseEntity<Void> startSticky(@RequestBody Instance chosenInstance) {
-        return userServiceImpl.startSticky(chosenInstance);
+    public ResponseEntity<Void> startSticky(@RequestBody Instance chosenInstance, @AuthenticationPrincipal Jwt jwt, Principal principal) {
+        return userServiceImpl.startSticky(chosenInstance,jwt,principal);
     }
 }

@@ -18,6 +18,6 @@ public class CustomJwtAuthConverter implements Converter<Jwt, AbstractAuthentica
         authorities = jwt.getClaimAsStringList("roles").stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-        return new JwtAuthenticationToken(jwt, authorities, jwt.getClaimAsString("userId"));
+        return new JwtAuthenticationToken(jwt, authorities, jwt.getClaimAsString("user_id"));
     }
 }

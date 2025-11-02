@@ -12,6 +12,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 
 @Configuration
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -27,7 +29,9 @@ public class SpringSecurityConfigure {
                 )
                 // 启用 OAuth2 Resource Server 的 JWT 支持
                 .oauth2ResourceServer(oauth2 -> oauth2
-                                                                                            .jwt(jwt -> jwt.jwtAuthenticationConverter(new CustomJwtAuthConverter())))
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(new CustomJwtAuthConverter())))
+//                .oauth2ResourceServer(oauth2 -> oauth2
+//                        .jwt(withDefaults()))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
