@@ -1,5 +1,6 @@
 package com.wuying.authorizationServer.security;
 
+import com.wuying.authorizationServer.security.handler.exceptionHandler.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -12,12 +13,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class SpringSecurityConfigure {
     //final CustomUserInfoMapper customUserInfoMapper;
     private final DBUserDetailsManager dbUserDetailsManager;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationFilterChain(HttpSecurity http) throws Exception {
@@ -47,13 +51,8 @@ public class SpringSecurityConfigure {
 //                                       new LoginUrlAuthenticationEntryPoint("/login"),
 //                                       new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
 //                               )
-        //http.oauth2Login(Customizer.withDefaults());
-        http.formLogin(form ->
-                form
-                        .loginPage("/public/static/html/loginPage")
-                        .loginProcessingUrl("/login")
-                        .usernameParameter("userId") // 使用我们自己的登录页
-                        .permitAll()
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
         );
         http.cors(AbstractHttpConfigurer::disable);
         http.csrf(AbstractHttpConfigurer::disable);
@@ -67,14 +66,14 @@ public class SpringSecurityConfigure {
                 .securityMatcher("/**")
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/error/**","/favicon.ico","/hello","/public/**").permitAll()
+                                .requestMatchers("/error/**","/favicon.ico","/hello","/getResource").permitAll()
                                 .anyRequest().authenticated()
                 );
 //        http.requestCache(Cache -> Cache.
 //                requestCache(requestCache));
 //        http.exceptionHandling(exception ->
 //                exception
-//                        //.authenticationEntryPoint(new MyAuthenticationEntryPoint())
+//                        //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 //                        .accessDeniedHandler(new MyAccessDeniedHandler()));
 
                 //.successHandler(new MyAuthenticationSuccessHandler())
@@ -91,17 +90,20 @@ public class SpringSecurityConfigure {
 //        );
 //
 //        http.formLogin(Customizer.withDefaults());
-//        http.formLogin(form ->
-//                form
-//                        .loginPage("/public/static/html/loginPage")
-//                        .loginProcessingUrl("/login")
-//                        .usernameParameter("userId")
-//                        .permitAll()
-//        );
-//        http.userDetailsService(dbUserDetailsManager);
+        http.formLogin(form ->
+                form
+//                        .loginPage("/pblc/sttc/hl/loginPage")
+                        .loginProcessingUrl("/login")
+                        .usernameParameter("userId")
+                        .permitAll()
+        );
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+        );
+        http.userDetailsService(dbUserDetailsManager);
 //        http.exceptionHandling(exception ->
 //                exception
-//                        //.authenticationEntryPoint(new MyAuthenticationEntryPoint())
+//                        //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 //                        .accessDeniedHandler(new MyAccessDeniedHandler())
 //);
 //        http.logout(logout ->
@@ -142,5 +144,15 @@ public class SpringSecurityConfigure {
         firewall.setAllowSemicolon(true);
         return firewall;
     }
+
+//    @Bean
+//    WebMvcConfigurer disablePathPatternParser() {
+//        return new WebMvcConfigurer() {
+//            @Override
+//            public void configurePathMatch(PathMatchConfigurer configurer) {
+//                configurer.setPatternParser(null); // 使用 AntPathMatcher 而非 PathPattern
+//            }
+//        };
+//    }
 
 }

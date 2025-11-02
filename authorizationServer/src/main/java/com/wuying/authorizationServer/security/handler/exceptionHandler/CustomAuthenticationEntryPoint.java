@@ -1,25 +1,24 @@
 package com.wuying.authorizationServer.security.handler.exceptionHandler;
 
-import com.alibaba.fastjson2.JSONObject;
-import com.wuying.common.pojo.Result;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-
-public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
+@Component
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        String jsonResult = JSONObject.toJSONString(Result
-                .<String>builder()
-                .code(null)
-                .message("unauthenticated")
-                .data(null)
-                .build());
-        response.sendRedirect("/Login");
+        RequestCache requestCache = new HttpSessionRequestCache();
+        requestCache.saveRequest(request, response);
+
+        String redirectUrl = "/getResource?protected_level=public&type=static&format=html&resource_name=loginPage";
+        response.sendRedirect(redirectUrl);
         response.setContentType("text/html;charset=utf-8");
 
     }

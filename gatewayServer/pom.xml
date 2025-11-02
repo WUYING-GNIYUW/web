@@ -82,6 +82,23 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.wuying</groupId>
+            <artifactId>common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-web</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-test</artifactId>
+                    </exclusion>
+                </exclusions>
+        </dependency>
+
+
     </dependencies>
 
     <build>
