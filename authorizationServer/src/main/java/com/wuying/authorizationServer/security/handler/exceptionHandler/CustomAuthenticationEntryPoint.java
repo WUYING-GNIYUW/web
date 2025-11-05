@@ -17,7 +17,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         RequestCache requestCache = new HttpSessionRequestCache();
         requestCache.saveRequest(request, response);
 
-        String redirectUrl = "/public/getResource?type=static&format=html&resource_name=loginPage";
+        String redirectUrl = "/public/getResource?type=static&format=html&resource_name=loginPage&file_extension=html";
         response.sendRedirect(redirectUrl);
         response.setContentType("text/html;charset=utf-8");
 
