@@ -27,7 +27,7 @@ public class SpringSecurityConfigure {
         // 开启全局验证
         http.authorizeExchange((authorize) -> authorize
                 .pathMatchers(
-                        "/api/**","error/**","/favicon.ico","/oauth2/**","/userinfo/**","/connect/**"
+                        "/api/**","error/**","/favicon.ico","/oauth2/**","/userinfo/**","/connect/**","/public/**"
                 ).permitAll()
                 .anyExchange().authenticated()
         );

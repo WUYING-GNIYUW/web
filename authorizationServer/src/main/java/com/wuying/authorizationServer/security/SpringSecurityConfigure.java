@@ -66,7 +66,7 @@ public class SpringSecurityConfigure {
                 .securityMatcher("/**")
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/error/**","/favicon.ico","/hello","/getResource").permitAll()
+                                .requestMatchers("/error/**","/favicon.ico","/hello").permitAll()
                                 .anyRequest().authenticated()
                 );
 //        http.requestCache(Cache -> Cache.
@@ -74,10 +74,10 @@ public class SpringSecurityConfigure {
 //        http.exceptionHandling(exception ->
 //                exception
 //                        //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-//                        .accessDeniedHandler(new MyAccessDeniedHandler()));
+//                        .accessDeniedHandler(new CustomAccessDeniedHandler()));
 
-                //.successHandler(new MyAuthenticationSuccessHandler())
-                //.failureHandler(new MyAuthenticationFailureHandler())
+                //.successHandler(new CustomAuthenticationSuccessHandler())
+                //.failureHandler(new CustomAuthenticationFailureHandler())
 //        http.formLogin(login ->
 //                        login
 //                                .loginPage("/login")
@@ -85,8 +85,8 @@ public class SpringSecurityConfigure {
 //                                .permitAll()
 //                                .usernameParameter("userId")
 //                                .passwordParameter("password")
-//                                //.successHandler(new MyAuthenticationSuccessHandler())
-//                                //.failureHandler(new MyAuthenticationFailureHandler())
+//                                //.successHandler(new CustomAuthenticationSuccessHandler())
+//                                //.failureHandler(new CustomAuthenticationFailureHandler())
 //        );
 //
 //        http.formLogin(Customizer.withDefaults());
@@ -104,7 +104,7 @@ public class SpringSecurityConfigure {
 //        http.exceptionHandling(exception ->
 //                exception
 //                        //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-//                        .accessDeniedHandler(new MyAccessDeniedHandler())
+//                        .accessDeniedHandler(new CustomAccessDeniedHandler())
 //);
 //        http.logout(logout ->
 //                logout.permitAll()
