@@ -20,7 +20,7 @@ public class ResourceController {
             @RequestParam("file_extension") String fileExtension) {
 
         String baseInternalUri = "/internal_protected";
-        String internalUri = baseInternalUri + Util.encodePath(format, protectedLevel, type, format, resourceName);
+        String internalUri = baseInternalUri + Util.encodePath(fileExtension, protectedLevel, type, format, resourceName);
         System.out.println("resourceName:" + resourceName);
         System.out.println("Generated internal URI:" + internalUri);
 

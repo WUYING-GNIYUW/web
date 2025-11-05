@@ -7,7 +7,7 @@ import org.springframework.core.env.Environment;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+
 
 public class Util {
     public static String encodePath(String fileExtension, String... vars) {
