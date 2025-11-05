@@ -297,7 +297,7 @@
 
         <div class="card-header">
             <div class="header-image-wrapper">
-                <img src="/public/static/img/GS.png" class="header-image">
+                <img src="/public/getResource?type=static&format=img&resource_name=GS&file_extension=png" class="header-image">
             </div>
         </div>
 
@@ -352,7 +352,7 @@
             alert('请填写用户名和密码');
             return;
           }
-          alert('准备提交：' + JSON.stringify(form.value));
+          document.querySelector('.login-form').submit();
         }
 
         return { form, resetForm, onSubmit };
