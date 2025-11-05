@@ -1,9 +1,10 @@
+application:
+  name: gateway-server
+
 server:
   port: 8080
 
 spring:
-  application:
-    name: gateway-server
   config:
     import:
       - "nacos:gateway-server"
@@ -14,14 +15,14 @@ spring:
       configurations: request-based-sticky-session
       sticky-session:
         add-service-instance-cookie: true
-        instance-id-cookie-name: sc-lb-itc-id
+        instance-id-cookie-name: "sc-lb-itc-id"
     nacos:
       discovery:
-        server-addr: 106.53.106.123:8848
+        server-addr: localhost:8848
         register-enabled: false
         enabled: true
       config:
-        server-addr: 106.53.106.123:8848
+        server-addr: localhost:8848
         file-extension: yaml
         refresh-enabled: true
 
