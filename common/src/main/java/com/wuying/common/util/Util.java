@@ -10,12 +10,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class Util {
-    public static String encodePath(String fileExtension,String... vars) {
+    public static String encodePath(String format, String... vars) {
         String path = "";
         for (String v : vars) {
             path = path.concat("/" + URLEncoder.encode(v, StandardCharsets.UTF_8));
         }
-        path = path.concat("." + URLEncoder.encode(fileExtension, StandardCharsets.UTF_8));
+        path = path.concat("." + URLEncoder.encode(format, StandardCharsets.UTF_8));
         return path;
 
     }
