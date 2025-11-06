@@ -21,11 +21,13 @@ public class SpringSecurityConfigure {
     public SecurityWebFilterChain defaultSecurityFilterChain(ServerHttpSecurity http) {
 
         // 禁用csrf与cors
-        http.csrf(ServerHttpSecurity.CsrfSpec::disable);
-        http.cors(ServerHttpSecurity.CorsSpec::disable);
+        http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .cors(ServerHttpSecurity.CorsSpec::disable);
 
         // 开启全局验证
-        http.authorizeExchange((authorize) -> authorize
+        http
+                .authorizeExchange((authorize) -> authorize
                 .pathMatchers(
                         "/api/**","error/**","/favicon.ico","/oauth2/**","/userinfo/**","/connect/**","/public/**"
                 ).permitAll()
@@ -37,12 +39,9 @@ public class SpringSecurityConfigure {
 //
 //        ).requestCache(Cache -> Cache.
 //                requestCache(requestCache));
-        http.oauth2Login(Customizer.withDefaults()
-        )
-        ;
-//                .requestCache(Cache -> Cache.
-//                requestCache(requestCache));
-        http.oauth2Client(Customizer.withDefaults()).requestCache(Cache ->Cache.requestCache(new WebSessionServerRequestCache()));
+        http
+                .oauth2Login(Customizer.withDefaults())
+                .oauth2Client(Customizer.withDefaults()).requestCache(Cache ->Cache.requestCache(new WebSessionServerRequestCache()));
 
 //        http.exceptionHandling(exception -> exception
 //                //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())

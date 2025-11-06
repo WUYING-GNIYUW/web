@@ -26,12 +26,6 @@ public class SpringSecurityConfigure {
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationFilterChain(HttpSecurity http) throws Exception {
-//        http.authorizeHttpRequests((authorize) ->
-//                authorize
-//                        .requestMatchers("/loginPage","/login/**").permitAll()
-//                        .anyRequest().authenticated()
-//
-//        );
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
 
         http
@@ -55,8 +49,10 @@ public class SpringSecurityConfigure {
         http.exceptionHandling(ex -> ex
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
         );
-        http.cors(AbstractHttpConfigurer::disable);
-        http.csrf(AbstractHttpConfigurer::disable);
+        http
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable);
+
         return http.build();
     }
     @Bean
@@ -91,13 +87,17 @@ public class SpringSecurityConfigure {
 //        );
 //
 //        http.formLogin(Customizer.withDefaults());
-        http.formLogin(form ->
+
+        http
+                .formLogin(form ->
                 form
 //                        .loginPage("/pblc/sttc/hl/loginPage")
                         .loginProcessingUrl("/login")
                         .usernameParameter("userId")
                         .permitAll()
-        );
+        )
+                .oauth2Login(Customizer.withDefaults());
+
         http.exceptionHandling(ex -> ex
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
         );
@@ -116,9 +116,9 @@ public class SpringSecurityConfigure {
         //http.addFilterBefore(new ParseJwtFilter(), UsernamePasswordAuthenticationFilter.class);
         //http.addFilterAfter(new SetJwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        http.cors(AbstractHttpConfigurer::disable);
-        http.csrf(AbstractHttpConfigurer::disable);
-
+        http
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
