@@ -27,4 +27,3 @@ spring:
 #      discovery:
 #        port: 8100
 #        server-addr: 106.53.106.123:8848
-
