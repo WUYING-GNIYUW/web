@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -136,6 +138,12 @@ public class SpringSecurityConfigure {
 //        System.out.println(registeredClient.toString());
 //        return new InMemoryRegisteredClientRepository(registeredClient);
 //    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        //return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        return new BCryptPasswordEncoder(10);
+    }
 
     @Bean//重新配置防火墙过滤器，允许url带有特殊字符
     public HttpFirewall allowUrlSemicolonHttpFirewall() {
