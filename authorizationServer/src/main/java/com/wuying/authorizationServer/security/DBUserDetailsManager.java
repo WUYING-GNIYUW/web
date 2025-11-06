@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class DBUserDetailsManager implements UserDetailsManager, UserDetailsService {
     private final UserServiceImpl userServiceImpl;
-    private final UserClient userclient;
+//    private final UserClient userclient;
     @Override
     public void createUser(UserDetails user) {
 
@@ -43,11 +43,11 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsServ
 
     @Override
     public boolean userExists(String userId) {
-        Result<List<User>> userInfo = userclient.getUsers(User.builder().userId(Long.parseLong(userId)).build());
-        User userInDB = userInfo.getData().get(0);
-        return userInfo.getMessage().equals("user exist");
-        //User userInDB = User.builder().userId("wuying").password(passwordEncoder.encode("000000")).roles("ADMIN").build();
-
+//        Result<List<User>> userInfo = userclient.getUsers(User.builder().userId(Long.parseLong(userId)).build());
+//        User userInDB = userInfo.getData().get(0);
+//        return userInfo.getMessage().equals("user exist");
+//        //User userInDB = User.builder().userId("wuying").password(passwordEncoder.encode("000000")).roles("ADMIN").build();
+        return true;
     }
 
     @Override

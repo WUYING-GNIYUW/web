@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
-@EnableFeignClients(basePackages = "com.wuying.common.feign.clients")
+//@EnableFeignClients(basePackages = "com.wuying.common.feign.clients")
 @SpringBootApplication(scanBasePackageClasses = {
         com.wuying.authorizationServer.AuthorizationServerApplication.class,
         com.wuying.common.CommonApplication.class
