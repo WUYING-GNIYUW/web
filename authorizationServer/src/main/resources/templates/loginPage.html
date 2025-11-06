@@ -324,8 +324,8 @@
             <div class="divider">第三方登录</div>
 
             <div class="oauth">
-                <button class="notice-btn" type="button"><i class="fab fa-github"></i>github</button>
-                <button class="notice-btn" type="button"><i class="fab fa-weixin"></i>wechat</button>
+                <button class="notice-btn" type="button" @click="githubLogin"><i class="fab fa-github"></i>github</button>
+                <button class="notice-btn" type="button" @click="wechatLogin"><i class="fab fa-weixin"></i>wechat</button>
             </div>
         </div>
 
@@ -355,9 +355,25 @@
           document.querySelector('.login-form').submit();
         }
 
+        function githubLogin() {
+          // CSRF
+<!--          const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);-->
+
+          // 将state保存到sessionStorage中
+<!--          sessionStorage.setItem('github_oauth_state', state);-->
+
+          window.open('/oauth2/authorization/github', '_blank');
+        }
+
+        // 微信登录方法（预留）
+        function wechatLogin() {
+          alert('微信登录功能暂未实现');
+        }
+
         return { form, resetForm, onSubmit };
       }
     }).mount('body');
+
 </script>
 </body>
 </html>
