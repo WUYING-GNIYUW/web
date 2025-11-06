@@ -34,10 +34,10 @@ public class AuthorizationServerConfig {
     private ClientRegistration getGitHubClientRegistration() {
         return CommonOAuth2Provider.GITHUB
                 .getBuilder("github")
-                .clientId("Ov23liuoVd504lJJEM9H")
-                .clientSecret("8ad0852ebaa229302c121952c7c40e6901f0639c")
+                .clientId("Ov23lir1hPmC3gRHwFoX")
+                .clientSecret("79e8bf24882a51c2785d6304ad1047ad59c81997")
                 .scope("read:user", "user:email")
-                .redirectUri("http://106.53.106.123/login/oauth2/code/github")
+                .redirectUri("http://localhost/login/oauth2/code/gatewayClient")
                 .build();
     }
 
