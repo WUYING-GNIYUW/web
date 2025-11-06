@@ -22,9 +22,9 @@ public class AuthorizationServerConfig {
     private ClientRegistration getCustomClientRegistration() {
         return ClientRegistration.withRegistrationId("gateway-client-registration")
                 .clientId("gateway-client-id")
-                .clientSecret("$2a$10$nDUzPNsp3WUWmSC3Mao3Q.hde98tpdUqh7MXLznpzbpOl/rEiD5C6")
+                .clientSecret("000000")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://106.53.106.123/login/oauth2/code/github")
+                .redirectUri("http://localhost/login/oauth2/code/gatewayClient")
                 .scope("openid")
                 .authorizationUri("http://authorizationserver:8100")
                 .clientName("gateway-client")
@@ -34,11 +34,10 @@ public class AuthorizationServerConfig {
     private ClientRegistration getGitHubClientRegistration() {
         return CommonOAuth2Provider.GITHUB
                 .getBuilder("github")
-                .clientId("Ov23liuoVd504lJJEM9H")
-                .clientSecret("8ad0852ebaa229302c121952c7c40e6901f0639c")
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://106.53.106.123/login/oauth2/code/github")
+                .clientId("Ov23lir1hPmC3gRHwFoX")
+                .clientSecret("79e8bf24882a51c2785d6304ad1047ad59c81997")
                 .scope("read:user", "user:email")
+                .redirectUri("http://localhost/login/oauth2/code/gatewayClient")
                 .build();
     }
 
