@@ -320,7 +320,6 @@
                     <button type="button" @click="resetForm" class="btn btn-secondary">取消</button>
                 </div>
             </form>
-
             <div class="divider">第三方登录</div>
 
             <div class="oauth">
@@ -348,7 +347,9 @@
         }
 
         function onSubmit(){
+          console.log(form.value.userId,'-----',form.value.password);
           if(!form.value.userId || !form.value.password){
+            console.log('请填写用户名和密码');
             alert('请填写用户名和密码');
             return;
           }
@@ -361,7 +362,7 @@
 
           // 将state保存到sessionStorage中
 <!--          sessionStorage.setItem('github_oauth_state', state);-->
-
+          alert('已经进入跳转逻辑');
           window.open('/oauth2/authorization/github', '_blank');
         }
 
@@ -370,7 +371,7 @@
           alert('微信登录功能暂未实现');
         }
 
-        return { form, resetForm, onSubmit };
+        return { form, resetForm, onSubmit, githubLogin,  wechatLogin};
       }
     }).mount('body');
 
