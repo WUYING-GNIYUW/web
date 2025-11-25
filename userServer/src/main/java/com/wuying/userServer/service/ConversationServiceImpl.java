@@ -38,19 +38,6 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
         System.out.println(userId+"------"+message);
         return Result.builder().build();
     }
-    @Override
-    public Result<List<Instance>> getInstances(){
-        try {
-            NamingService namingService = Util.getNamingService(env);
-            String instanceIP = env.getProperty("spring.cloud.nacos.discovery.ip");
-            List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
-            allInstances.stream().forEach(i->System.out.println(i.toString()));
-            return Result.<List<Instance>>builder().data(allInstances).build();
-        }
-        catch (NacosException e) {
-            throw new RuntimeException(e);
-        }
 
-    }
 
 }

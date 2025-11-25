@@ -1,13 +1,11 @@
-package com.wuying.common;
+package com.wuying;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CommonApplication {
-
+public class GatewayApplication {
     public static void main(String[] args) {
-        SpringApplication.run(CommonApplication.class, args);
+        SpringApplication.run(GatewayApplication.class, args);
     }
-
 }

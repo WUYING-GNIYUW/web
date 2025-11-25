@@ -14,5 +14,4 @@ public interface ConversationService extends IService<Conversation> {
 
     Result forwardMessage(String userId, String message);
 
-    Result<List<Instance>> getInstances();
 }
