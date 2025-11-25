@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements UserService {
     private final UserMapper userMapper;
-    private RedissonClient redissonClient;
+    private final RedissonClient redissonClient;
     private final Environment env;
     @Override
     public Result<Boolean> addUser(User adduser) {
@@ -105,8 +105,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
             if (cookie != null) {
                 headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
             }
-            RMap<String, Object> userMap = redissonClient.getMap("userinfo:" + jwt.getSubject());
-            userMap.put("stickyServerId",instance.getInstanceId());
+
+            RMap<String, Object> userMap = redissonClient.getMap("user:" + jwt.getSubject());
+            userMap.put("instanceId",instance.getInstanceId());
+            userMap.put("ip",instance.getIp());
+            userMap.put("port",instance.getPort());
+            userMap.put("serviceName",instance.getServiceName());
             userMap.expire(Duration.ofHours(12));
             return ResponseEntity.ok().headers(headers).build();
         } catch (NacosException e) {
