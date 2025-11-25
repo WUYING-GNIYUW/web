@@ -79,7 +79,7 @@
                 </button>
             </div>
             <div v-if="selectedInstance" class="selected-instance-info">
-                <strong>当前选择实例:</strong> {{ selectedInstance.instanceName || selectedInstance.instanceId }}<br>
+                <strong>当前选择实例:</strong> {{ selectedInstance.serviceName }}<br>
                 <strong>地址:</strong> {{ selectedInstance.ip }}:{{ selectedInstance.port }}<br>
                 <strong>健康:</strong> {{ selectedInstance.healthy || '未知' }}<br>
                 <strong>元数据:</strong> {{ selectedInstance.metadata ? JSON.stringify(selectedInstance.metadata) : '无' }}
@@ -490,8 +490,7 @@
               instances.value = response.data.data;
               log(`获取到 ${instances.value.length} 个服务实例`);
             } else {
-              instances.value = Array.isArray(response.data) ? response.data : (response.data ? [response.data] : []);
-              log(`获取到 ${instances.value.length} 个服务实例（直接解析）`);
+              log(`示例数据格式错误`);
             }
 
             if (instances.value.length > 0 && !selectedInstanceId.value) {
