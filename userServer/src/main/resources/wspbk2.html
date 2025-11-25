@@ -460,12 +460,6 @@
             // 更新全局和 wsEndpoint（与 onInstanceChange 行为一致）
             window.selectedServiceInstance = selectedInstance.value;
 
-            const newWsEndpoint = (selectedInstance.value && selectedInstance.value.ip && selectedInstance.value.port)
-              ? `http://${selectedInstance.value.ip}:${selectedInstance.value.port}/user/ws`
-              : '/user/ws';
-            wsEndpoint.value = newWsEndpoint;
-            log(`WebSocket 地址已更新为: ${newWsEndpoint}`);
-
             // 若当前已连接，保持原有行为：断开以便重新连接到新实例
             if (isConnected.value) {
               log('检测到当前已连接，自动断开以便使用新的实例重连');
@@ -511,13 +505,6 @@
             selectedInstance.value = instances.value.find(instance => instance.instanceId === selectedInstanceId.value) || null;
             if (selectedInstance.value) {
               log(`已选择实例: ${selectedInstance.value.instanceName || selectedInstance.value.instanceId}`);
-
-              // 自动更新 WebSocket 地址（如果你希望使用实例 ip:port）
-              const newWsEndpoint = selectedInstance.value && selectedInstance.value.ip && selectedInstance.value.port
-                ? `http://${selectedInstance.value.ip}:${selectedInstance.value.port}/user/ws`
-                : '/user/ws';
-              wsEndpoint.value = newWsEndpoint;
-              log(`WebSocket 地址已更新为: ${newWsEndpoint}`);
 
               if (isConnected.value) {
                 log('检测到当前已连接，自动断开现有连接');
