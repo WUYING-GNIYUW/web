@@ -1,6 +1,5 @@
 package com.wuying.authorizationServer;
 
-import com.wuying.common.CommonApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

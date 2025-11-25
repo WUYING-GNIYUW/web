@@ -3,6 +3,7 @@ package com.wuying.userServer.controller;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.wuying.common.pojo.Result;
 import com.wuying.common.pojo.User;
+import com.wuying.common.pojo.UserInfo;
 import com.wuying.common.util.Util;
 import com.wuying.userServer.service.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -63,9 +65,24 @@ public class UserController {
         return Result.<Boolean>builder().data(userServiceImpl.removeById(user)).build();
     }
 
+    @GetMapping("/getInstances")
+    public Result<List<Instance>> getInstances() {
+        return userServiceImpl.getInstances();
+    }
 
     @PostMapping("/startSticky")
     public ResponseEntity<Void> startSticky(@RequestBody Instance chosenInstance, @AuthenticationPrincipal Jwt jwt, Principal principal) {
         return userServiceImpl.startSticky(chosenInstance,jwt,principal);
     }
+
+    @GetMapping("/getUserInfo")
+    public ResponseEntity<Result<UserInfo>> getUserInfo(@PathVariable String userId) {
+        return userServiceImpl.getUserInfo(userId);
+    }
+
+    @GetMapping("/getUserInfos")
+    public ResponseEntity<Result<List<Map<String, Object>>>> getUserInfos(@PathVariable String userId) {
+        return userServiceImpl.getUserInfos();
+    }
+
 }

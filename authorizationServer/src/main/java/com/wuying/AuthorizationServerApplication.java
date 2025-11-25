@@ -1,4 +1,4 @@
-package com.wuying.authorizationServer;
+package com.wuying;
 
 import com.wuying.common.pojo.User;
 import org.springframework.boot.SpringApplication;
@@ -8,11 +8,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 //@EnableFeignClients(basePackages = "com.wuying.common.feign.clients")
-@SpringBootApplication(scanBasePackageClasses = {
-        com.wuying.authorizationServer.AuthorizationServerApplication.class,
-        com.wuying.common.CommonApplication.class
-}
-)
+@SpringBootApplication
+
 public class AuthorizationServerApplication {
 
     public static void main(String[] args) {

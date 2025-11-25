@@ -2,9 +2,11 @@ package com.wuying.userServer.controller;
 
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.wuying.common.pojo.Result;
+import com.wuying.common.pojo.UserInfo;
 import com.wuying.userServer.service.ConversationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -33,8 +35,6 @@ public class ConversationController {
     public Result forwardMessage(@DestinationVariable String userId, @Payload String message) {
         return conversationServiceImpl.forwardMessage(userId, message);
     }
-    @GetMapping("/getInstances")
-    public Result<List<Instance>> getInstances() {
-        return conversationServiceImpl.getInstances();
-    }
+
+
 }
