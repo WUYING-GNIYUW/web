@@ -1,10 +1,10 @@
-package com.wuying.gatewayServer;
+package com.wuying;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = GatewayApplication.class)
-class GatewayApplicationTests {
+@SpringBootTest(classes = UserApplication.class)
+class UserApplicationTests {
 
     @Test
     void contextLoads() {
