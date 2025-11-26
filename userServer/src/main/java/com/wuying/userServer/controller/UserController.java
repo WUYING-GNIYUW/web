@@ -41,28 +41,28 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public Result<Boolean> addUser(@RequestBody User addUser) {
-        return userServiceImpl.addUser(addUser);
+    public Result<Boolean> addUser(@RequestBody User addedUser) {
+        return userServiceImpl.addUser(addedUser);
     }
 
     @PostMapping("/register")
-    public Result<Boolean> registerUser(@RequestBody User registerUser) {
-        return userServiceImpl.addUser(registerUser);
+    public Result<Boolean> registerUser(@RequestBody User registeredUser) {
+        return userServiceImpl.addUser(registeredUser);
     }
 
     @PostMapping("/get")
-    public Result<List<User>> getUsers(@RequestBody User queryUser) {
-        return userServiceImpl.getUsers(queryUser);
+    public Result<List<User>> getUsers(@RequestBody User queriedUser) {
+        return userServiceImpl.getUsers(queriedUser);
     }
 
     @PutMapping("/update")
-    public Result<Boolean> update(@RequestBody User user) {
-        return Result.<Boolean>builder().data(userServiceImpl.updateById(user)).build();
+    public Result<Boolean> update(@RequestBody User UpdatedUser) {
+        return Result.<Boolean>builder().data(userServiceImpl.updateById(UpdatedUser)).build();
     }
 
     @PostMapping("/remove")
-    public Result<Boolean> removeUser(@RequestBody User user) {
-        return Result.<Boolean>builder().data(userServiceImpl.removeById(user)).build();
+    public Result<Boolean> removeUser(@RequestBody User remomvedUser) {
+        return Result.<Boolean>builder().data(userServiceImpl.removeById(remomvedUser)).build();
     }
 
     @GetMapping("/getInstances")
@@ -76,13 +76,13 @@ public class UserController {
     }
 
     @GetMapping("/getUserInfo")
-    public ResponseEntity<Result<UserInfo>> getUserInfo(@PathVariable String userId) {
-        return userServiceImpl.getUserInfo(userId);
+    public ResponseEntity<Result<UserInfo>> getUserInfo(@PathVariable String queriedUserId) {
+        return userServiceImpl.getUserInfo(queriedUserId);
     }
 
     @GetMapping("/getUserInfos")
-    public ResponseEntity<Result<List<Map<String, Object>>>> getUserInfos(@PathVariable String userId) {
-        return userServiceImpl.getUserInfos();
+    public ResponseEntity<Result<List<Map<String, Object>>>> getUserInfos(Principal principal) {
+        return userServiceImpl.getUserInfos(principal);
     }
 
 }
