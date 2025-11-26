@@ -11,6 +11,8 @@ import com.wuying.userServer.exception.AddUserException;
 import com.wuying.userServer.mapper.UserMapper;
 import com.wuying.common.pojo.Result;
 import com.wuying.common.pojo.User;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RKeys;
 import org.redisson.api.RMap;
@@ -18,9 +20,7 @@ import org.redisson.api.RedissonClient;
 import org.redisson.api.options.KeysScanOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -29,31 +29,31 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 //@Transactional(rollbackFor = {Exception.class})
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements UserService {
     private final UserMapper userMapper;
+    private final HttpServletResponse response;
     private final RedissonClient redissonClient;
     private final Environment env;
     @Override
-    public Result<Boolean> addUser(User adduser) {
-        if (getById(adduser.getUserId()) == null) {
-            save(adduser);
+    public Result<Boolean> addUser(User addeduser) {
+        if (getById(addeduser.getUserId()) == null) {
+            save(addeduser);
             return Result.<Boolean>builder().data(true).build();
         } else {
             throw new AddUserException("账号已存在");
         }
     }
     @Override
-    public Result<List<User>> getUsers(User queryUser) {
+    public Result<List<User>> getUsers(User queriedUser) {
         List<User> userList = lambdaQuery()
-                .eq(queryUser.getUserId() != null, User::getUserId, queryUser.getUserId())
-                .like(queryUser.getUserName() != null, User::getUserName, queryUser.getUserName())
-                .eq(queryUser.getAvailableState() != null, User::getAvailableState, queryUser.getAvailableState())
-                .eq(queryUser.getOnlineState() != null, User::getOnlineState, queryUser.getOnlineState())
+                .eq(queriedUser.getUserId() != null, User::getUserId, queriedUser.getUserId())
+                .like(queriedUser.getUserName() != null, User::getUserName, queriedUser.getUserName())
+                .eq(queriedUser.getAvailableState() != null, User::getAvailableState, queriedUser.getAvailableState())
+                .eq(queriedUser.getOnlineState() != null, User::getOnlineState, queriedUser.getOnlineState())
                 .list();
 //        Map<String, Object> mapOfUser = BeanUtil.beanToMap(queryUser);
 //        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
@@ -61,13 +61,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         return Result.<List<User>>builder().data(userList).build();
     }
     @Override
-    public Result<Boolean> removeUser(User removeUser) {
-/*        List<User> Users = new ArrayList<>();
-        List<String> UserIds = new ArrayList<>();
-        Users.forEach(User->{UserIds.add(User.getUsername());});
-        Users.forEach(System.out::println);*/
-        if (getById(removeUser.getUserId()) != null) {
-            removeById(removeUser);
+    public Result<Boolean> removeUser(User removedUser) {
+        if (getById(removedUser.getUserId()) != null) {
+            removeById(removedUser);
             return Result.<Boolean>builder().data(true).build();
         } else {
             throw new AddUserException("账号不存在");
@@ -96,21 +92,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
             List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
             Optional<Instance> firstInstance = allInstances.stream().filter(i -> i.getIp().equals(chosenInstance.getIp())).findFirst();
             Instance instance = firstInstance.orElseThrow(RuntimeException::new);
-            ResponseCookie cookie = instance.getInstanceId() != null ? ResponseCookie.from("sc-lb-itc-id", instance.getInstanceId())
-                    .path("/")
-                    .maxAge(24 * 60 * 60)
-                    .httpOnly(true)
-                    // .secure(true)   // 如果需要Secure，取消注释
-                    .build() : null;
-            if (cookie != null) {
-                headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+
+            Cookie cookie = new Cookie("sc-lb-itc-id", "Error");
+            if (instance.getInstanceId() != null) {
+                cookie = new Cookie("sc-lb-itc-id", instance.getInstanceId());
+                cookie.setPath("/");
+                cookie.setMaxAge(24 * 60 * 60);
+                cookie.setHttpOnly(true);
+                response.addCookie(cookie);
+            } else {
+                System.out.println("Error");
             }
+            response.addCookie(cookie);
 
             RMap<String, Object> userMap = redissonClient.getMap("user:" + jwt.getSubject());
-            userMap.put("instanceId",instance.getInstanceId());
-            userMap.put("ip",instance.getIp());
-            userMap.put("port",instance.getPort());
-            userMap.put("serviceName",instance.getServiceName());
+            userMap.put("instanceId", instance.getInstanceId());
+            userMap.put("ip", instance.getIp());
+            userMap.put("port", instance.getPort());
+            userMap.put("serviceName", instance.getServiceName());
             userMap.expire(Duration.ofHours(12));
             return ResponseEntity.ok().headers(headers).build();
         } catch (NacosException e) {
@@ -132,14 +131,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     }
     @Override
-    public ResponseEntity<Result<List<Map<String, Object>>>> getUserInfos() {
+    public ResponseEntity<Result<List<Map<String, Object>>>> getUserInfos(Principal principal) {
 
         RKeys rKeys = redissonClient.getKeys();
 
         KeysScanOptions options = KeysScanOptions.defaults()
                 .pattern("user:*")
                 .limit(300);
+        String ClientUserKey = "user:".concat(principal.getName());
         List<Map<String, Object>> userInfoList = rKeys.getKeysStream(options)
+                .filter(key -> !key.equals(ClientUserKey))
                 .map(key -> {
                     RMap<String, Object> userMap = redissonClient.getMap(key);
                     if(userMap.isExists()){

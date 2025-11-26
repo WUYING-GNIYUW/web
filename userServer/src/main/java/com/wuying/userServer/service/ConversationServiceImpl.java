@@ -34,6 +34,7 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
 
     @Override
     public Result forwardMessage(String userId, String message) {
+        message = message.concat(",sender:local");
         messagingTemplate.convertAndSendToUser(userId,"/queue/messages",message);
         System.out.println(userId+"------"+message);
         return Result.builder().build();

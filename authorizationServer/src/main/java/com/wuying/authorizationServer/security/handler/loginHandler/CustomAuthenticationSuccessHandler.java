@@ -12,12 +12,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import java.io.IOException;
 
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 //    private final RedissonClient redisson;
+    private final SavedRequestAwareAuthenticationSuccessHandler defaultHandler = new SavedRequestAwareAuthenticationSuccessHandler();
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         UserDetails userDetails = (UserDetails)authentication.getPrincipal();
@@ -25,12 +27,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 //        map.put("field1", "value1");
 //        map.put("field2", "value2");
         userDetails.getUsername();
-        userDetails.getAuthorities();
 //        SavedRequest savedRequest = new HttpSessionRequestCache().getRequest(request, response);
 //        String targetUrl = (savedRequest != null) ? savedRequest.getRedirectUrl() : "/home";
 //        System.out.println(targetUrl);
         // 进行重定向
-        System.out.println("success");
+        defaultHandler.onAuthenticationSuccess(request, response, authentication);
         response.setContentType("text/html;charset=utf-8");
 //        response.sendRedirect(targetUrl);
 //        String jsonResult = JSONObject.toJSONString(Result
