@@ -1,6 +1,7 @@
 package com.wuying.userServer.controller;
 
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.wuying.common.pojo.ChatMessage;
 import com.wuying.common.pojo.Result;
 import com.wuying.common.pojo.UserInfo;
 import com.wuying.userServer.service.ConversationServiceImpl;
@@ -14,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -24,16 +26,16 @@ public class ConversationController {
     private final ConversationServiceImpl conversationServiceImpl;
 
     @GetMapping("/info_of_conversations")
-    public Result getInfoOfConversations(@RequestParam String contactUserId, @AuthenticationPrincipal Jwt jwt) {
+    public Result<?> getInfoOfConversations(@RequestParam String contactUserId, @AuthenticationPrincipal Jwt jwt) {
         return conversationServiceImpl.buildTemporaryConversations(jwt.getClaimAsString("userId"),contactUserId);
     }
     @PostMapping("/build_temporary_conversations")
-    public Result buildTemporaryConversations(@RequestParam String contactUserId, @AuthenticationPrincipal Jwt jwt) {
+    public Result<?> buildTemporaryConversations(@RequestParam String contactUserId, @AuthenticationPrincipal Jwt jwt) {
         return conversationServiceImpl.buildTemporaryConversations(jwt.getClaimAsString("userId"),contactUserId);
     }
-    @MessageMapping("/user/conversation/message/{userId}")
-    public Result forwardMessage(@DestinationVariable String userId, @Payload String message) {
-        return conversationServiceImpl.forwardMessage(userId, message);
+    @MessageMapping("/user/conversation/message")
+    public Result<?> forwardMessage(@Payload ChatMessage chatMessage, Principal principal) {
+        return conversationServiceImpl.forwardMessage(chatMessage, principal);
     }
 
 

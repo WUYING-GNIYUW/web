@@ -145,9 +145,9 @@
                         </div>
                     </div>
 
-                    <div class="chat-messages">
+                    <div class="chat-messages" ref="chatContainer">
                         <div v-for="(msg, index) in chatMessages" :key="index"
-                             class="chat-message" :class="{self: msg.sender === '我'}">
+                             class="chat-message" :class="{self: msg.sender === 'Local'}">
                             <div class="message-sender">{{ msg.sender }}</div>
                             <div class="message-content">{{ msg.content }}</div>
                             <div class="message-time">{{ msg.time }}</div>
@@ -195,7 +195,7 @@
         const logs = ref([]);
         const connectionStatus = ref('CLOSED');
         const sendText = ref('');
-        const sendDestination = ref('/toBack/user/conversation/message/1');
+        const sendDestination = ref('/toBack/user/conversation/message');
         const stompClient = ref(null);
         const chatMessages = ref([]);
         // CHANGED: onlineUsers 为对象数组 [{ userId: String, instance: Object }]
@@ -203,6 +203,7 @@
         const selectedUser = ref(null);
         const messageType = ref('群聊消息');
         const isConnecting = ref(false);
+        const chatContainer = ref(null);
 
         const instances = ref([]);
         const selectedInstanceId = ref('');
@@ -336,13 +337,13 @@
 
               stompClient.value.subscribe('/topic/public', (message) => {
                 const msgBody = JSON.parse(message.body);
-                addChatMessage(msgBody.sender, msgBody.content, new Date().toLocaleTimeString());
+                addChatMessage(msgBody.sendUserId, msgBody.message, new Date().toLocaleTimeString());
                 log('接收到 /topic/public : ' + message.body + '公共');
               });
 
               stompClient.value.subscribe('/toUser/queue/messages', (message) => {
                 const msgBody = JSON.parse(message.body);
-                addChatMessage(msgBody.sender, msgBody.content, new Date().toLocaleTimeString());
+                addChatMessage(msgBody.sendUserId, msgBody.message, new Date().toLocaleTimeString());
                 log('接收到 /user/queue/messages : ' + message.body + '私人');
               });
 
@@ -400,10 +401,10 @@
           }
 
           const message = {
-            content: text,
-            timestamp: new Date().toISOString(),
-            type: selectedUser.value ? 'PRIVATE' : 'PUBLIC',
-            recipient: selectedUser.value
+            message: text,
+<!--            timestamp: new Date().toISOString(),-->
+<!--            type: selectedUser.value ? 'PRIVATE' : 'PUBLIC',-->
+            receivedUserId: selectedUser.value
           };
 
           stompClient.value.send(destination, {}, JSON.stringify(message));
@@ -415,6 +416,13 @@
         const addChatMessage = (sender, content, time) => {
           chatMessages.value.push({ sender, content, time });
           if (chatMessages.value.length > 200) chatMessages.value = chatMessages.value.slice(-100);
+
+          // Vue.nextTick 保证 DOM 已更新
+          Vue.nextTick(() => {
+            if (chatContainer.value) {
+              chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+            }
+          });
         };
 
         const clearLog = () => { logs.value = []; };
@@ -430,9 +438,9 @@
           messageType.value = selectedUser.value ? '私聊消息' : '群聊消息';
 
           if (selectedUser.value) {
-            sendDestination.value = `/toBack/user/conversation/message/${selectedUser.value}`;
+            sendDestination.value = `/toBack/user/conversation/message`;
           } else {
-            sendDestination.value = '/toBack/user/conversation/message/1';
+            log(`uncoded`)
           }
 
           // —— 这里是关键：把页面上当前选择的实例（selectedInstance）切换为被点击用户的 instance（如果存在）
@@ -553,7 +561,8 @@
           fetchInstances,
           fetchOnlineUsers,
           selectUser,
-          onInstanceChange
+          onInstanceChange,
+          chatContainer
         };
       }
     }).mount('#app');
