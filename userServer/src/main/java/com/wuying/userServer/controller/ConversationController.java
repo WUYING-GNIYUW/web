@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
+import java.util.List;
 
 
 @RestController
@@ -32,6 +33,11 @@ public class ConversationController {
     public Result<Boolean> forwardMessage(@Payload ChatMessage chatMessage, Principal principal) {
         return conversationServiceImpl.forwardMessage(chatMessage, principal);
     }
+    @GetMapping("/readHistoryMessage/{queriedUserId}")
+    public Result<List<ChatMessage>> readHistoryMessage(@RequestParam String queriedUserId, Principal principal) {
+        return conversationServiceImpl.readHistoryMessage(queriedUserId, principal);
+    }
+
 
 
 }

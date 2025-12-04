@@ -5,6 +5,7 @@ import com.wuying.common.pojo.ChatMessage;
 import com.wuying.common.pojo.Result;
 
 import java.security.Principal;
+import java.time.Instant;
 
 public interface ChatMessageService extends IService<ChatMessage> {
     Result<?> buildTemporaryConversations(String hostUserId, String ContactUserId);
@@ -12,5 +13,7 @@ public interface ChatMessageService extends IService<ChatMessage> {
     Result<?> accpetMessage(String userId, String message);
 
     Result<?> forwardMessage(ChatMessage chatMessage, Principal principal);
+
+    Result<?> readHistoryMessage(String queriedUserId, Principal principal);
 
 }
