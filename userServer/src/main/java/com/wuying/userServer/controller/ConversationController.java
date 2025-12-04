@@ -29,7 +29,7 @@ public class ConversationController {
         return conversationServiceImpl.buildTemporaryConversations(jwt.getClaimAsString("userId"),contactUserId);
     }
     @MessageMapping("/user/conversation/message")
-    public Result<?> forwardMessage(@Payload ChatMessage chatMessage, Principal principal) {
+    public Result<Boolean> forwardMessage(@Payload ChatMessage chatMessage, Principal principal) {
         return conversationServiceImpl.forwardMessage(chatMessage, principal);
     }
 
