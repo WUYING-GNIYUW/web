@@ -30,7 +30,7 @@ public class ConversationServiceImpl extends ServiceImpl<ChatMessageMapper, Chat
     }
 
     @Override
-    public Result<?> forwardMessage(ChatMessage chatMessage, Principal principal) {
+    public Result<Boolean> forwardMessage(ChatMessage chatMessage, Principal principal) {
         chatMessage.setCreatedTime(Instant.now());
         chatMessage.setSendUserId(principal.getName());
         messagingTemplate.convertAndSendToUser(chatMessage.getReceivedUserId(),"/queue/messages",chatMessage.toString());
