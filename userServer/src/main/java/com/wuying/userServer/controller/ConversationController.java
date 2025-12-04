@@ -1,22 +1,17 @@
 package com.wuying.userServer.controller;
 
-import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.wuying.common.pojo.ChatMessage;
 import com.wuying.common.pojo.Result;
-import com.wuying.common.pojo.UserInfo;
 import com.wuying.userServer.service.ConversationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-
 import java.security.Principal;
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/user/conversation")

@@ -34,9 +34,8 @@ public class WebSocketConnectListener {
         String sessionId = sha.getSessionId();
         Principal principal = sha.getUser();
         System.out.println("SockJS 会话已销毁, sessionId=" + sessionId);
-        RMap<Object, Object> map = null;
         if (principal != null) {
-            map = redissonClient.getMap("user:".concat(principal.getName()));
+            RMap<Object, Object> map = redissonClient.getMap("user:".concat(principal.getName()));
             map.delete();
         }
 
