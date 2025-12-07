@@ -39,16 +39,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     private final RedissonClient redissonClient;
     private final Environment env;
     @Override
-    public Result<Boolean> addUser(User addeduser) {
+    public Boolean addUser(User addeduser) {
         if (getById(addeduser.getUserId()) == null) {
             save(addeduser);
-            return Result.<Boolean>builder().data(true).build();
+            return true;
         } else {
             throw new AddUserException("账号已存在");
         }
     }
     @Override
-    public Result<List<User>> getUsers(User queriedUser) {
+    public List<User> getUsers(User queriedUser) {
         List<User> userList = lambdaQuery()
                 .eq(queriedUser.getUserId() != null, User::getUserId, queriedUser.getUserId())
                 .like(queriedUser.getUserName() != null, User::getUserName, queriedUser.getUserName())
@@ -58,26 +58,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 //        Map<String, Object> mapOfUser = BeanUtil.beanToMap(queryUser);
 //        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
 //        list(userQueryWrapper.allEq(mapOfUser));
-        return Result.<List<User>>builder().data(userList).build();
+        return userList;
     }
     @Override
-    public Result<Boolean> removeUser(User removedUser) {
+    public Boolean removeUser(User removedUser) {
         if (getById(removedUser.getUserId()) != null) {
             removeById(removedUser);
-            return Result.<Boolean>builder().data(true).build();
+            return true;
         } else {
             throw new AddUserException("账号不存在");
         }
     }
 
+//    @Override
+//    public String identifySelfClient(Principal principal){
+//        return Result.<String>builder().data(principal.getName()).build();
+//    }
+
     @Override
-    public Result<List<Instance>> getInstances(){
+    public List<Instance> getInstances(){
         try {
             NamingService namingService = Util.getNamingService(env);
             String instanceIP = env.getProperty("spring.cloud.nacos.discovery.ip");
             List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
             allInstances.stream().forEach(i->System.out.println(i.toString()));
-            return Result.<List<Instance>>builder().data(allInstances).build();
+            return allInstances;
         }
         catch (NacosException e) {
             throw new RuntimeException(e);
@@ -85,7 +90,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     }
     @Override
-    public ResponseEntity<Void> startSticky(Instance chosenInstance, Jwt jwt, Principal principal) {
+    public HttpHeaders startSticky(Instance chosenInstance, Jwt jwt, Principal principal) {
         try {
             HttpHeaders headers = new HttpHeaders();
             NamingService namingService = Util.getNamingService(env);
@@ -111,27 +116,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
             userMap.put("port", instance.getPort());
             userMap.put("serviceName", instance.getServiceName());
             userMap.expire(Duration.ofHours(12));
-            return ResponseEntity.ok().headers(headers).build();
+            return headers;
         } catch (NacosException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public ResponseEntity<Result<UserInfo>> getUserInfo(String userId) {
+    public UserInfo getUserInfo(String userId) {
         RMap<String, Object> userMap = redissonClient.getMap("userinfo:" + userId);
         if(userMap.isExists()){
             UserInfo userInfo = UserInfo.builder().build();
             BeanUtil.fillBeanWithMapIgnoreCase(userMap.readAllMap(), userInfo, false);
-            return ResponseEntity.ok(Result.<UserInfo>builder().data(userInfo).build());
+            return userInfo;
         }
         else{
-            return ResponseEntity.ok(Result.<UserInfo>builder().message("userInfo unexists").build());
+            return null;
         }
 
     }
     @Override
-    public ResponseEntity<Result<List<Map<String, Object>>>> getUserInfos(Principal principal) {
+    public List<Map<String, Object>> getUserInfos(Principal principal) {
 
         RKeys rKeys = redissonClient.getKeys();
 
@@ -139,7 +144,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
                 .pattern("user:*")
                 .limit(300);
         String ClientUserKey = "user:".concat(principal.getName());
-        List<Map<String, Object>> userInfoList = rKeys.getKeysStream(options)
+        return rKeys.getKeysStream(options)
                 .filter(key -> !key.equals(ClientUserKey))
                 .map(key -> {
                     RMap<String, Object> userMap = redissonClient.getMap(key);
@@ -153,10 +158,5 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
                     }
                 })
                 .toList();
-        return ResponseEntity
-                .ok(Result
-                        .<List<Map<String, Object>>>builder()
-                        .data(userInfoList)
-                        .build());
     }
 }
