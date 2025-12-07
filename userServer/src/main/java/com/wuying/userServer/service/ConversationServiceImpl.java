@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-
+import cn.hutool.json.JSONUtil;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
@@ -37,7 +37,8 @@ public class ConversationServiceImpl extends ServiceImpl<ChatMessageMapper, Chat
     public Result<Boolean> forwardMessage(ChatMessage chatMessage, Principal principal) {
         chatMessage.setCreatedTime(Instant.now());
         chatMessage.setSendUserId(principal.getName());
-        messagingTemplate.convertAndSendToUser(chatMessage.getReceivedUserId(),"/queue/messages",chatMessage.toString());
+        messagingTemplate.convertAndSendToUser(chatMessage.getReceivedUserId(),"/queue/messages",JSONUtil.toJsonStr(chatMessage));
+        System.out.println(chatMessage.getReceivedUserId());
         return Result.<Boolean>builder().data(StorageMessage(chatMessage)).build();
 
     }
@@ -49,8 +50,9 @@ public class ConversationServiceImpl extends ServiceImpl<ChatMessageMapper, Chat
                         .eq(ChatMessage::getReceivedUserId, queriedUserId))
                 .or(w -> w.eq(ChatMessage::getSendUserId, queriedUserId)
                         .eq(ChatMessage::getReceivedUserId, customClientUserId))
-                .orderByDesc(ChatMessage::getCreatedTime) // 按时间降序
+                .orderByAsc(ChatMessage::getCreatedTime)
                 .list();
+
 //        List<ChatMessage> historyMessageListList = Stream
 //                .concat(
 //                        lambdaQuery()

@@ -33,7 +33,7 @@ public class ConversationController {
     public Result<Boolean> forwardMessage(@Payload ChatMessage chatMessage, Principal principal) {
         return conversationServiceImpl.forwardMessage(chatMessage, principal);
     }
-    @GetMapping("/readHistoryMessage/{queriedUserId}")
+    @GetMapping("/readHistoryMessage")
     public Result<List<ChatMessage>> readHistoryMessage(@RequestParam String queriedUserId, Principal principal) {
         return conversationServiceImpl.readHistoryMessage(queriedUserId, principal);
     }

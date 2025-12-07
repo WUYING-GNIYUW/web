@@ -42,17 +42,17 @@ public class UserController {
 
     @PostMapping("/add")
     public Result<Boolean> addUser(@RequestBody User addedUser) {
-        return userServiceImpl.addUser(addedUser);
+        return Result.<Boolean>builder().data(userServiceImpl.addUser(addedUser)).build();
     }
 
     @PostMapping("/register")
     public Result<Boolean> registerUser(@RequestBody User registeredUser) {
-        return userServiceImpl.addUser(registeredUser);
+        return Result.<Boolean>builder().data(userServiceImpl.addUser(registeredUser)).build();
     }
 
     @PostMapping("/get")
     public Result<List<User>> getUsers(@RequestBody User queriedUser) {
-        return userServiceImpl.getUsers(queriedUser);
+        return Result.<List<User>>builder().data(userServiceImpl.getUsers(queriedUser)).build();
     }
 
     @PutMapping("/update")
@@ -65,24 +65,30 @@ public class UserController {
         return Result.<Boolean>builder().data(userServiceImpl.removeById(remomvedUser)).build();
     }
 
+    @GetMapping("/identifySelfClient")
+    public Result<User> identifySelfClient(Principal principal) {
+        return Result.<User>builder().data(userServiceImpl.getById(principal.getName())).build();
+    }
+
     @GetMapping("/getInstances")
     public Result<List<Instance>> getInstances() {
-        return userServiceImpl.getInstances();
+        return Result.<List<Instance>>builder().data(userServiceImpl.getInstances()).build();
     }
 
     @PostMapping("/startSticky")
     public ResponseEntity<Void> startSticky(@RequestBody Instance chosenInstance, @AuthenticationPrincipal Jwt jwt, Principal principal) {
-        return userServiceImpl.startSticky(chosenInstance,jwt,principal);
+        return ResponseEntity.ok().headers(userServiceImpl.startSticky(chosenInstance,jwt,principal)).build();
     }
 
     @GetMapping("/getUserInfo")
-    public ResponseEntity<Result<UserInfo>> getUserInfo(@PathVariable String queriedUserId) {
-        return userServiceImpl.getUserInfo(queriedUserId);
+    public Result<UserInfo> getUserInfo(@PathVariable String queriedUserId) {
+        return Result.<UserInfo>builder().data(userServiceImpl.getUserInfo(queriedUserId)).build();
     }
 
     @GetMapping("/getUserInfos")
-    public ResponseEntity<Result<List<Map<String, Object>>>> getUserInfos(Principal principal) {
-        return userServiceImpl.getUserInfos(principal);
+    public Result<List<Map<String, Object>>> getUserInfos(Principal principal) {
+        return Result.<List<Map<String, Object>>>builder().data(userServiceImpl.getUserInfos(principal)).build();
     }
+
 
 }
