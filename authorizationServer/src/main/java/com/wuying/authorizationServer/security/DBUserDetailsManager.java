@@ -53,11 +53,11 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsServ
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
 //        Result<List<User>> userInfo = userclient.getUsers(User.builder().userId(Long.parseLong(userId)).build());
-        Result<List<User>> userInfo = userServiceImpl.getUsers(User.builder().userId(Long.parseLong(userId)).build());
+        Result<List<User>> userInfo = userServiceImpl.getUsers(User.builder().userId(userId).build());
         User userInDB = userInfo.getData().get(0);
         //User userInDB = User.builder().userId("wuying").password(passwordEncoder.encode("000000")).roles("ADMIN").build();
         return org.springframework.security.core.userdetails.User
-                .withUsername(Long.toString(userInDB.getUserId()))
+                .withUsername(userInDB.getUserId())
                 .password(userInDB.getPassword())
                 .accountLocked(false)
                 .roles(userInDB.getRoles())
