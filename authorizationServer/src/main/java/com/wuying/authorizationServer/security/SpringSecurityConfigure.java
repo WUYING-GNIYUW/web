@@ -48,9 +48,9 @@ public class SpringSecurityConfigure {
 //                                       new LoginUrlAuthenticationEntryPoint("/login"),
 //                                       new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
 //                               )
-//        http.exceptionHandling(ex -> ex
-//                .authenticationEntryPoint(customAuthenticationEntryPoint)
-//        );
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+        );
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable);

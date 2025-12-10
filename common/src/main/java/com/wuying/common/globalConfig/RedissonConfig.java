@@ -16,7 +16,8 @@ public class RedissonConfig {
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://127.0.0.1:6379")
+                .setAddress("redis://106.53.106.123:6379")
+                .setPassword("0000")
                 .setTimeout(3000)
                 .setConnectionPoolSize(64)
                 .setConnectionMinimumIdleSize(10);
