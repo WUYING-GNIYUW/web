@@ -37,6 +37,10 @@ public class ConversationController {
     public Result<List<ChatMessage>> readHistoryMessage(@RequestParam String queriedUserId, Principal principal) {
         return conversationServiceImpl.readHistoryMessage(queriedUserId, principal);
     }
+    @GetMapping("/readUnReadMessage")
+    public Result<List<ChatMessage>> readUnReadMessage(@RequestParam String queriedUserId, Principal principal) {
+        return Result.<List<ChatMessage>>builder().data(conversationServiceImpl.readUnReadMessage(queriedUserId, principal)).build();
+    }
 
 
 

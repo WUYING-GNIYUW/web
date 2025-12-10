@@ -40,8 +40,6 @@
         .chat-title{font-size:16px;font-weight:600;}
         .chat-messages{flex:1;overflow-y:auto;padding:12px;background:#f8fafc;border-radius:8px;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;}
         .input-group{margin-bottom:8px;}
-        .instances-section{margin-top:16px;padding:12px;background:#f0fdf4;border-radius:8px;border:1px solid#bbf7d0}
-        .instances-title{font-size:14px;font-weight:600;margin-bottom:8px;color:#166534}
         .refresh-btn { padding:4px 8px;border-radius:6px;font-size:12px;background:#f1f5f9;color:#0f172a;border:0;cursor:pointer;}
         .refresh-btn:disabled { opacity:0.6; cursor:not-allowed; }
 
@@ -92,23 +90,6 @@
     <div class="card">
         <h2>实时聊天室</h2>
 
-        <div class="instances-section">
-            <div class="instances-title">服务实例管理</div>
-            <div style="display:flex;gap:8px;align-items:center;">
-                <select v-model="selectedInstanceId" style="flex:1;" @change="onInstanceChange">
-                    <option value="">请选择服务实例</option>
-                    <option v-for="instance in instances" :key="instance.instanceId" :value="instance.instanceId">
-                        {{ instance.instanceName || instance.instanceId }} ({{ instance.ip }}:{{ instance.port }})
-                    </option>
-                </select>
-                <button @click="fetchInstances" :disabled="instancesLoading">{{ instancesLoading ? '加载中...' : '刷新实例' }}</button>
-            </div>
-            <div v-if="selectedInstance" style="margin-top:8px;font-size:13px;background:#ecfdf5;padding:8px;border-radius:6px;">
-                <div><strong>当前选择实例:</strong> {{ selectedInstance.serviceName || selectedInstance.instanceId }}</div>
-                <div><strong>地址:</strong> {{ selectedInstance.ip }}:{{ selectedInstance.port }}</div>
-            </div>
-        </div>
-
         <div class="row" style="justify-content:space-between;margin-top:12px;">
             <div style="flex:1;">
                 <label>WebSocket 端点</label>
@@ -139,7 +120,7 @@
                     <div class="online-users">
                         <div style="display:flex;justify-content:space-between;align-items:center;">
                             <div style="font-weight:600;">在线用户</div>
-                            <button class="refresh-btn" @click="fetchOnlineUsers" :disabled="onlineLoading">{{ onlineLoading ? '刷新中...' : '刷新在线用户' }}</button>
+                            <button class="refresh-btn" @click="fetchFriends" :disabled="FriendsLoading">{{ FriendsLoading ? '刷新中...' : '刷新好友' }}</button>
                         </div>
                         <ul class="user-list" style="margin-top:8px;">
                             <li v-for="user in onlineUsers" :key="user.userId" class="user-item" :class="{active: selectedUser === user.userId}" @click="selectUser(user)">
@@ -205,7 +186,7 @@
         const stompClient = ref(null);
 
         // 聊天相关
-        const chatMessages = ref([]); // {  content, time, isSelf }
+        const chatMessages = ref([]);
         const chatContainer = ref(null);
         const sendText = ref('');
         const sendDestination = ref('/toBack/user/conversation/message');
@@ -215,14 +196,9 @@
         const onlineUsers = ref([]);
         const selectedUser = ref(null);
         const messageType = ref('群聊');
-        const INSTANCES_URL = '/user/getInstances';
-        const USERS_URL = '/user/getUserInfos';
+        const FETCH_FRIENDS_URL = '/user/getFriends';
         const IDENTIFICATION_URL = '/user/identifySelfClient';
-        const instances = ref([]);
-        const selectedInstanceId = ref('');
-        const selectedInstance = ref(null);
-        const instancesLoading = ref(false);
-        const onlineLoading = ref(false);
+        const FriendsLoading = ref(false);
 
         const isConnected = computed(() => connectionStatus.value === 'CONNECTED');
 
@@ -268,84 +244,28 @@
         }
 
         // --- 获取在线用户 ---
-        async function fetchOnlineUsers() {
-          if (onlineLoading.value) return;
-          onlineLoading.value = true;
+        async function fetchFriends() {
+          if (FriendsLoading.value) return;
+          FriendsLoading.value = true;
           try {
-            log('请求在线用户列表...');
-            const resp = await axios.get(USERS_URL);
-            const data = resp && resp.data ? (resp.data.data || resp.data) : [];
+            log('请求好友列表...');
+            const resp = await axios.get(FETCH_FRIENDS_URL);
+            const data = resp && resp.data ? resp.data.data : [];
             if (Array.isArray(data)) {
-              onlineUsers.value = data.map(u => {
-                if (!u) return null;
+              onlineUsers.value = data.map(f => {
+                if (!f) return null;
                 const uid = u.userId || u.user || (u.username ? u.username : null);
-                return uid ? { userId: String(uid), instance: u.instance || null } : null;
+                return uid ? { userId: String(uid)} : null;
               }).filter(Boolean);
-              log(`在线用户更新，共 ${onlineUsers.value.length} 个`);
+              log(`好友信息更新，共 ${onlineUsers.value.length} 个`);
             } else {
-              log('在线用户返回格式不正确');
+              log('好友信息返回格式不正确');
             }
           } catch (err) {
-            log('获取在线用户失败: ' + (err.message || JSON.stringify(err)));
+            log('获取好友失败: ' + (err.message || JSON.stringify(err)));
             console.error(err);
           } finally {
-            onlineLoading.value = false;
-          }
-        }
-
-        // --- 获取实例列表 ---
-        async function fetchInstances() {
-          instancesLoading.value = true;
-          try {
-            log('请求服务实例列表...');
-            const resp = await axios.get(INSTANCES_URL);
-            const data = resp && resp.data ? (resp.data.data || resp.data) : [];
-            if (Array.isArray(data)) {
-              instances.value = data;
-              log(`获取到 ${instances.value.length} 个实例`);
-              if (!selectedInstanceId.value && instances.value.length > 0) {
-                selectedInstanceId.value = instances.value[0].instanceId || '';
-                onInstanceChange();
-              }
-            } else {
-              log('实例返回格式不正确');
-            }
-          } catch (err) {
-            log('获取实例失败: ' + (err.message || JSON.stringify(err)));
-            instances.value = [];
-          } finally {
-            instancesLoading.value = false;
-          }
-        }
-
-        function onInstanceChange() {
-          if (selectedInstanceId.value) {
-            selectedInstance.value = instances.value.find(i => i.instanceId === selectedInstanceId.value) || null;
-            window.selectedServiceInstance = selectedInstance.value;
-            if (isConnected.value) {
-              log('实例变更：当前已连接，正在断开以便重新连接新实例');
-              disconnect();
-            }
-          } else {
-            selectedInstance.value = null;
-            window.selectedServiceInstance = null;
-          }
-        }
-
-        // --- 粘性会话（可选） ---
-        async function startStickySession() {
-          try {
-            log('请求粘性会话...');
-            await axios.post('/user/startSticky', {
-              instanceId: selectedInstance.value ? selectedInstance.value.instanceId : null,
-              ip: selectedInstance.value ? selectedInstance.value.ip : null,
-              port: selectedInstance.value ? selectedInstance.value.port : null,
-            }, { withCredentials: true });
-            log('粘性会话成功（若后端设置 cookie 则已生效）');
-            return true;
-          } catch (err) {
-            log('粘性会话失败: ' + (err.message || JSON.stringify(err)));
-            return false;
+            FriendsLoading.value = false;
           }
         }
 
@@ -354,13 +274,6 @@
           if (isConnecting.value) return;
           isConnecting.value = true;
           setStatus('CONNECTING');
-
-          const stickyOK = await startStickySession();
-          if (!stickyOK) {
-            setStatus('CLOSED');
-            isConnecting.value = false;
-            return;
-          }
 
           try {
             log('开始连接 SockJS: ' + wsEndpoint.value);
@@ -528,30 +441,45 @@
           }
         }
 
+        async function readUnreadMessages() {
+          try {
+            log('请求未读消息...');
+            const payload = { queriedUserId: selectedUser.value };
+            const resp = await axios.get('/user/conversation/readUnreadMessage', { withCredentials: true,params: payload });
+            let list = []
+            if (resp && resp.data && Array.isArray(resp.data.data)){
+              list = resp.data.data
+            }
+            else{
+              log('请求数据格式有误或数据不存在');
+            }
+
+            for (const item of list) {
+              addChatMessage(
+                item.sendUserId,
+                item.message,
+                item.createdTime
+              );
+            }
+            log(`未读消息加载完成，共 ${list.length} 条`);
+          } catch (err) {
+            log('读取未读消息失败: ' + (err.message || JSON.stringify(err)));
+            console.error(err);
+          }
+        }
+
         // --- 选择用户 ---
         function selectUser(user) {
           if (!user || !user.userId) return;
           const id = user.userId;
           selectedUser.value = id;
-          messageType.value = selectedUser.value ? '私聊' : '群聊';
 
           // 若要在切换私聊时重新加载历史消息，可以断开/重连或直接调用 readHistoryMessages()
           // 清空消息区并读取私聊历史（示例行为）
           chatMessages.value = [];
           readHistoryMessages();
-          // 切换实例逻辑（如果 user.instance 存在）
-          if (user.instance) {
-            const inst = user.instance;
-            const matched = inst && inst.instanceId ? instances.value.find(x => x.instanceId === inst.instanceId) : null;
-            if (matched) {
-              selectedInstance.value = matched;
-              selectedInstanceId.value = matched.instanceId || '';
-            } else {
-              selectedInstance.value = inst;
-              selectedInstanceId.value = inst.instanceId || '';
-            }
-            // 选择实例后如果已连接可能需要断开重连，按需处理
-          }
+          readUnreadMessages();
+
           log(selectedUser.value ? `切换到与 ${selectedUser.value} 的私聊` : '切换到群聊');
         }
 
@@ -559,16 +487,14 @@
 
         onMounted(() => {
           log('页面已加载');
-          fetchInstances();
-          fetchOnlineUsers();
+          fetchFriends();
           identifySelfClient();
         });
 
         return {
           wsEndpoint, logs, connectionStatus, isConnecting, connect, disconnect, clearLog,
           chatMessages, chatContainer, sendText, sendDestination, sendMessage,
-          onlineUsers, fetchOnlineUsers, selectUser, messageType,
-          instances, selectedInstanceId, selectedInstance, instancesLoading, fetchInstances, onInstanceChange,
+          onlineUsers, fetchFriends, selectUser, messageType,
           selectedUser, isConnected, identifySelfClient
         };
       }

@@ -70,25 +70,25 @@ public class UserController {
         return Result.<User>builder().data(userServiceImpl.getById(principal.getName())).build();
     }
 
-    @GetMapping("/getInstances")
-    public Result<List<Instance>> getInstances() {
-        return Result.<List<Instance>>builder().data(userServiceImpl.getInstances()).build();
+    @GetMapping("/getFriends")
+    public Result<Map<String,List<User>>> getFriends() {
+        return Result.<Map<String,List<User>>>builder().data(userServiceImpl.getFriends()).build();
     }
 
-    @PostMapping("/startSticky")
-    public ResponseEntity<Void> startSticky(@RequestBody Instance chosenInstance, @AuthenticationPrincipal Jwt jwt, Principal principal) {
-        return ResponseEntity.ok().headers(userServiceImpl.startSticky(chosenInstance,jwt,principal)).build();
-    }
+//    @PostMapping("/startSticky")
+//    public ResponseEntity<Void> startSticky(@RequestBody Instance chosenInstance, @AuthenticationPrincipal Jwt jwt, Principal principal) {
+//        return ResponseEntity.ok().headers(userServiceImpl.startSticky(chosenInstance,jwt,principal)).build();
+//    }
 
     @GetMapping("/getUserInfo")
     public Result<UserInfo> getUserInfo(@PathVariable String queriedUserId) {
         return Result.<UserInfo>builder().data(userServiceImpl.getUserInfo(queriedUserId)).build();
     }
 
-    @GetMapping("/getUserInfos")
-    public Result<List<Map<String, Object>>> getUserInfos(Principal principal) {
-        return Result.<List<Map<String, Object>>>builder().data(userServiceImpl.getUserInfos(principal)).build();
-    }
+//    @GetMapping("/getUserInfos")
+//    public Result<List<Map<String, Object>>> getUserInfos(Principal principal) {
+//        return Result.<List<Map<String, Object>>>builder().data(userServiceImpl.getUserInfos(principal)).build();
+//    }
 
 
 }

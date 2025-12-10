@@ -11,4 +11,5 @@ public class ChatMessage {
     private String receivedUserId;
     private Instant createdTime;
     private String message;
+    private Boolean unreadFlag;
 }
