@@ -71,8 +71,8 @@ public class UserController {
     }
 
     @GetMapping("/getFriends")
-    public Result<Map<String,List<User>>> getFriends() {
-        return Result.<Map<String,List<User>>>builder().data(userServiceImpl.getFriends()).build();
+    public Result<Map<String,List<User>>> getFriends(Principal principal) {
+        return Result.<Map<String,List<User>>>builder().data(userServiceImpl.getFriends(principal)).build();
     }
 
 //    @PostMapping("/startSticky")

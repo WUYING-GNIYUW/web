@@ -15,8 +15,8 @@ public interface ChatMessageService extends IService<ChatMessage> {
 
     Result<?> forwardMessage(ChatMessage chatMessage, Principal principal);
 
-    Result<?> readHistoryMessage(String queriedUserId, Principal principal);
+    List<ChatMessage> readHistoryMessage(String queriedUserId, Principal principal);
 
-    public List<ChatMessage> readUnReadMessage(String queriedUserId, Principal principal);
+    List<ChatMessage> readUnReadMessage(String queriedUserId, Principal principal);
 
 }

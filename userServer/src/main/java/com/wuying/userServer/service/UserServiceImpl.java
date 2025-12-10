@@ -75,16 +75,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 //    }
 
     @Override
-    public Map<String,List<User>> getFriends(){
+    public Map<String,List<User>> getFriends(Principal principal){
         List<User> userList = list();
+        System.out.println(userList.toString());
         Map<Boolean, List<User>> grouped = userList.stream()
+                .filter(u -> !u.getUserId().equals(principal.getName()))
                 .collect(Collectors.partitioningBy(User::getOnlineFlag));
 
         List<User> onlineUserList = grouped.get(true);
         List<User> offlineUserList = grouped.get(false);
+        System.out.println(onlineUserList.toString());
+        System.out.println(offlineUserList.toString());
         Map<String, List<User>> userMap = new HashMap<>();
-        userMap.put("onlineUser",onlineUserList);
-        userMap.put("offlineUser",offlineUserList);
+        userMap.put("onlineFriends",onlineUserList);
+        userMap.put("offlineFriends",offlineUserList);
         return userMap;
 
     }

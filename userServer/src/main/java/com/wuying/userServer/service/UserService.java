@@ -23,7 +23,7 @@ public interface UserService extends IService<User> {
 //    String identifySelfClient(Principal principal);
 //    HttpHeaders startSticky(Instance chosenInstance, Jwt jwt, Principal principal);
 
-    Map<String,List<User>> getFriends();
+    Map<String,List<User>> getFriends(Principal principal);
     UserInfo getUserInfo(String userId);
 //    List<Map<String, Object>> getUserInfos(Principal principal);
 

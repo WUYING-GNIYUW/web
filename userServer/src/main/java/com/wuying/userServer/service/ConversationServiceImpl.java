@@ -63,17 +63,8 @@ public class ConversationServiceImpl extends ServiceImpl<ChatMessageMapper, Chat
         return Result.<Boolean>builder().data(storageMessage(chatMessage)).build();
     }
     @Override
-    public Result<List<ChatMessage>> readHistoryMessage(String queriedUserId, Principal principal) {
+    public List<ChatMessage> readHistoryMessage(String queriedUserId, Principal principal) {
         String customClientUserId = principal.getName();
-        List<ChatMessage> historyMessageList = lambdaQuery()
-                .and(w -> w
-                        .eq(ChatMessage::getSendUserId, customClientUserId)
-                        .eq(ChatMessage::getReceivedUserId, queriedUserId))
-                .or(w -> w
-                        .eq(ChatMessage::getSendUserId, queriedUserId)
-                        .eq(ChatMessage::getReceivedUserId, customClientUserId))
-                .orderByAsc(ChatMessage::getCreatedTime)
-                .list();
 
 //        List<ChatMessage> historyMessageListList = Stream
 //                .concat(
@@ -86,7 +77,15 @@ public class ConversationServiceImpl extends ServiceImpl<ChatMessageMapper, Chat
 //                                .eq(queriedUserId != null, ChatMessage::getReceivedUserId, queriedUserId)
 //                                .list().stream()
 //                ).toList();
-     return Result.<List<ChatMessage>>builder().data(historyMessageList).build();
+     return lambdaQuery()
+             .and(w -> w
+                     .eq(ChatMessage::getSendUserId, customClientUserId)
+                     .eq(ChatMessage::getReceivedUserId, queriedUserId))
+             .or(w -> w
+                     .eq(ChatMessage::getSendUserId, queriedUserId)
+                     .eq(ChatMessage::getReceivedUserId, customClientUserId))
+             .orderByAsc(ChatMessage::getCreatedTime)
+             .list();
     }
 
     @Override
@@ -104,8 +103,8 @@ public class ConversationServiceImpl extends ServiceImpl<ChatMessageMapper, Chat
                 .and(w -> w
                         .eq(ChatMessage::getSendUserId, queriedUserId)
                         .eq(ChatMessage::getReceivedUserId, customClientUserId)
-                        .eq(ChatMessage::getUnreadFlag, true)
-                        .set(ChatMessage::getUnreadFlag, false));
+                        .eq(ChatMessage::getUnreadFlag, true))
+                .set(ChatMessage::getUnreadFlag, false);
         return UnreadMessageList;
     }
 
