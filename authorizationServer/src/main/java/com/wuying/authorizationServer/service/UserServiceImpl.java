@@ -20,8 +20,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         List<User> userList = lambdaQuery()
                 .eq(queryUser.getUserId() != null, User::getUserId, queryUser.getUserId())
                 .like(queryUser.getUserName() != null, User::getUserName, queryUser.getUserName())
-                .eq(queryUser.getAvailableState() != null, User::getAvailableState, queryUser.getAvailableState())
-                .eq(queryUser.getOnlineState() != null, User::getOnlineState, queryUser.getOnlineState())
+                .eq(queryUser.getAvailableFlag() != null, User::getAvailableFlag, queryUser.getAvailableFlag())
+                .eq(queryUser.getOnlineFlag() != null, User::getOnlineFlag, queryUser.getOnlineFlag())
                 .list();
 //        Map<String, Object> mapOfUser = BeanUtil.beanToMap(queryUser);
 //        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
