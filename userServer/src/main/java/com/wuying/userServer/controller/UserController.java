@@ -1,24 +1,18 @@
 package com.wuying.userServer.controller;
 
-import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.wuying.common.pojo.Result;
 import com.wuying.common.pojo.User;
 import com.wuying.common.pojo.UserInfo;
-import com.wuying.common.util.Util;
 import com.wuying.userServer.service.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/user")

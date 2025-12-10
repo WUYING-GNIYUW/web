@@ -5,7 +5,6 @@ import com.wuying.common.pojo.ChatMessage;
 import com.wuying.common.pojo.Result;
 
 import java.security.Principal;
-import java.time.Instant;
 import java.util.List;
 
 public interface ChatMessageService extends IService<ChatMessage> {

@@ -3,7 +3,6 @@ package com.wuying.userServer.service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuying.common.pojo.ChatMessage;
 import com.wuying.common.pojo.Result;
-import com.wuying.common.pojo.User;
 import com.wuying.common.pojo.UserInfo;
 import com.wuying.userServer.mapper.ChatMessageMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +17,7 @@ import cn.hutool.json.JSONUtil;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)

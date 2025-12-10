@@ -1,31 +1,19 @@
 package com.wuying.userServer.service;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.nacos.api.exception.NacosException;
-import com.alibaba.nacos.api.naming.NamingService;
-import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuying.common.pojo.UserInfo;
-import com.wuying.common.util.Util;
 import com.wuying.userServer.exception.AddUserException;
 import com.wuying.userServer.mapper.UserMapper;
-import com.wuying.common.pojo.Result;
 import com.wuying.common.pojo.User;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RKeys;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
-import org.redisson.api.options.KeysScanOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-
-
 import java.security.Principal;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
