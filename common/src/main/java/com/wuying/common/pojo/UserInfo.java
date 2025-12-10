@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class UserInfo {
     @TableId(type = IdType.AUTO)
-    private String userId = "";
+    private String userId;
     @Builder.Default
     private String userName = "";
     @Builder.Default
