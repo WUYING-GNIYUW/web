@@ -10,7 +10,7 @@ spring:
   config:
     import:
       - "nacos:user-server"
-      - "nacos:common"
+#      - "nacos:common"
 #      - "classpath:jwt_properties.yml"
 #      - "classpath:user_message_properties.yml"
 
