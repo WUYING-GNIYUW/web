@@ -1,6 +1,7 @@
 package com.wuying.authorizationServer.security;
 
 import com.wuying.authorizationServer.security.handler.exceptionHandler.CustomAuthenticationEntryPoint;
+import com.wuying.authorizationServer.security.handler.loginHandler.CustomAuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,7 @@ public class SpringSecurityConfigure {
     //final CustomUserInfoMapper customUserInfoMapper;
     private final DBUserDetailsManager dbUserDetailsManager;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationFilterChain(HttpSecurity http) throws Exception {
@@ -46,9 +48,9 @@ public class SpringSecurityConfigure {
 //                                       new LoginUrlAuthenticationEntryPoint("/login"),
 //                                       new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
 //                               )
-        http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint(customAuthenticationEntryPoint)
-        );
+//        http.exceptionHandling(ex -> ex
+//                .authenticationEntryPoint(customAuthenticationEntryPoint)
+//        );
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable);
@@ -94,6 +96,7 @@ public class SpringSecurityConfigure {
 //                        .loginPage("/pblc/sttc/hl/loginPage")
                         .loginProcessingUrl("/login")
                         .usernameParameter("userId")
+                        .successHandler(customAuthenticationSuccessHandler)
                         .permitAll()
         )
                 .oauth2Login(Customizer.withDefaults());

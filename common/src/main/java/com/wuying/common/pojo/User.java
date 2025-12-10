@@ -8,11 +8,11 @@ import lombok.Data;
 @Data
 public class User {
     @TableId(type = IdType.AUTO)
-    private Long userId;
+    private String userId;
     private String password;
     private String userName;
-    private String availableState;
-    private String onlineState;
+    private Boolean availableFlag;
+    private Boolean onlineFlag;
     private String roles;
     private String origin;
 }

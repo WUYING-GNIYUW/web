@@ -20,15 +20,14 @@ import org.redisson.api.RedissonClient;
 import org.redisson.api.options.KeysScanOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 
 import java.security.Principal;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 //@Transactional(rollbackFor = {Exception.class})
@@ -52,8 +51,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         List<User> userList = lambdaQuery()
                 .eq(queriedUser.getUserId() != null, User::getUserId, queriedUser.getUserId())
                 .like(queriedUser.getUserName() != null, User::getUserName, queriedUser.getUserName())
-                .eq(queriedUser.getAvailableState() != null, User::getAvailableState, queriedUser.getAvailableState())
-                .eq(queriedUser.getOnlineState() != null, User::getOnlineState, queriedUser.getOnlineState())
+                .eq(queriedUser.getAvailableFlag() != null, User::getAvailableFlag, queriedUser.getAvailableFlag())
+                .eq(queriedUser.getOnlineFlag() != null, User::getOnlineFlag, queriedUser.getOnlineFlag())
                 .list();
 //        Map<String, Object> mapOfUser = BeanUtil.beanToMap(queryUser);
 //        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
@@ -76,55 +75,58 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 //    }
 
     @Override
-    public List<Instance> getInstances(){
-        try {
-            NamingService namingService = Util.getNamingService(env);
-            String instanceIP = env.getProperty("spring.cloud.nacos.discovery.ip");
-            List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
-            allInstances.stream().forEach(i->System.out.println(i.toString()));
-            return allInstances;
-        }
-        catch (NacosException e) {
-            throw new RuntimeException(e);
-        }
+    public Map<String,List<User>> getFriends(){
+        List<User> userList = list();
+        Map<Boolean, List<User>> grouped = userList.stream()
+                .collect(Collectors.partitioningBy(User::getOnlineFlag));
+
+        List<User> onlineUserList = grouped.get(true);
+        List<User> offlineUserList = grouped.get(false);
+        Map<String, List<User>> userMap = new HashMap<>();
+        userMap.put("onlineUser",onlineUserList);
+        userMap.put("offlineUser",offlineUserList);
+        return userMap;
 
     }
-    @Override
-    public HttpHeaders startSticky(Instance chosenInstance, Jwt jwt, Principal principal) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            NamingService namingService = Util.getNamingService(env);
-            List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
-            Optional<Instance> firstInstance = allInstances.stream().filter(i -> i.getIp().equals(chosenInstance.getIp())).findFirst();
-            Instance instance = firstInstance.orElseThrow(RuntimeException::new);
 
-            Cookie cookie = new Cookie("sc-lb-itc-id", "Error");
-            if (instance.getInstanceId() != null) {
-                cookie = new Cookie("sc-lb-itc-id", instance.getInstanceId());
-                cookie.setPath("/");
-                cookie.setMaxAge(24 * 60 * 60);
-                cookie.setHttpOnly(true);
-                response.addCookie(cookie);
-            } else {
-                System.out.println("Error");
-            }
-            response.addCookie(cookie);
-
-            RMap<String, Object> userMap = redissonClient.getMap("user:" + jwt.getSubject());
-            userMap.put("instanceId", instance.getInstanceId());
-            userMap.put("ip", instance.getIp());
-            userMap.put("port", instance.getPort());
-            userMap.put("serviceName", instance.getServiceName());
-            userMap.expire(Duration.ofHours(12));
-            return headers;
-        } catch (NacosException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//
+//    }
+//    @Override
+//    public HttpHeaders startSticky(Instance chosenInstance, Jwt jwt, Principal principal) {
+//        try {
+//            HttpHeaders headers = new HttpHeaders();
+//            NamingService namingService = Util.getNamingService(env);
+//            List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
+//            Optional<Instance> firstInstance = allInstances.stream().filter(i -> i.getIp().equals(chosenInstance.getIp())).findFirst();
+//            Instance instance = firstInstance.orElseThrow(RuntimeException::new);
+//
+//            Cookie cookie = new Cookie("sc-lb-itc-id", "Error");
+//            if (instance.getInstanceId() != null) {
+//                cookie = new Cookie("sc-lb-itc-id", instance.getInstanceId());
+//                cookie.setPath("/");
+//                cookie.setMaxAge(24 * 60 * 60);
+//                cookie.setHttpOnly(true);
+//                response.addCookie(cookie);
+//            } else {
+//                System.out.println("Error");
+//            }
+//            response.addCookie(cookie);
+//
+//            RMap<String, Object> userMap = redissonClient.getMap("userinfo:".concat(principal.getName()));
+//            userMap.put("instanceId", instance.getInstanceId());
+//            userMap.put("ip", instance.getIp());
+//            userMap.put("port", instance.getPort());
+//            userMap.put("serviceName", instance.getServiceName());
+//            userMap.expire(Duration.ofHours(12));
+//            return headers;
+//        } catch (NacosException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     @Override
     public UserInfo getUserInfo(String userId) {
-        RMap<String, Object> userMap = redissonClient.getMap("userinfo:" + userId);
+        RMap<String, Object> userMap = redissonClient.getMap("userinfo:".concat(userId));
         if(userMap.isExists()){
             UserInfo userInfo = UserInfo.builder().build();
             BeanUtil.fillBeanWithMapIgnoreCase(userMap.readAllMap(), userInfo, false);
@@ -135,28 +137,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         }
 
     }
-    @Override
-    public List<Map<String, Object>> getUserInfos(Principal principal) {
-
-        RKeys rKeys = redissonClient.getKeys();
-
-        KeysScanOptions options = KeysScanOptions.defaults()
-                .pattern("user:*")
-                .limit(300);
-        String ClientUserKey = "user:".concat(principal.getName());
-        return rKeys.getKeysStream(options)
-                .filter(key -> !key.equals(ClientUserKey))
-                .map(key -> {
-                    RMap<String, Object> userMap = redissonClient.getMap(key);
-                    if(userMap.isExists()){
-                        Map<String, Object> userInfoMap = userMap.readAllMap();
-                        userMap.put("userId", key.replaceFirst("user:", ""));
-                        return userInfoMap;
-                    }
-                    else{
-                        return new HashMap<String, Object>();
-                    }
-                })
-                .toList();
-    }
+//    @Override
+//    public List<Map<String, Object>> getUserInfos(Principal principal) {
+//
+//        RKeys rKeys = redissonClient.getKeys();
+//
+//        KeysScanOptions options = KeysScanOptions.defaults()
+//                .pattern("userinfo:*")
+//                .limit(300);
+//        String ClientUserKey = "userinfo:".concat(principal.getName());
+//        return rKeys.getKeysStream(options)
+//                .filter(key -> !key.equals(ClientUserKey))
+//                .map(key -> {
+//                    RMap<String, Object> RUserInfoMap = redissonClient.getMap(key);
+//                    if(RUserInfoMap.isExists()){
+//                        //RUserInfoMap.put("userId", key.replaceFirst("user:", ""));
+//                        return RUserInfoMap.readAllMap();
+//                    }
+//                    else{
+//                        return null;
+//                    }
+//                })
+//                .toList();
+//    }
 }

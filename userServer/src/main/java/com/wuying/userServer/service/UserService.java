@@ -21,9 +21,10 @@ public interface UserService extends IService<User> {
     List<User> getUsers(User queryUser);
     Boolean removeUser(User user);
 //    String identifySelfClient(Principal principal);
-    HttpHeaders startSticky(Instance chosenInstance, Jwt jwt, Principal principal);
-    List<Instance> getInstances();
+//    HttpHeaders startSticky(Instance chosenInstance, Jwt jwt, Principal principal);
+
+    Map<String,List<User>> getFriends();
     UserInfo getUserInfo(String userId);
-    List<Map<String, Object>> getUserInfos(Principal principal);
+//    List<Map<String, Object>> getUserInfos(Principal principal);
 
 }
