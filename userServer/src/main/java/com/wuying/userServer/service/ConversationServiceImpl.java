@@ -76,12 +76,14 @@ public class ConversationServiceImpl extends ServiceImpl<ChatMessageMapper, Chat
 //                                .list().stream()
 //                ).toList();
      return lambdaQuery()
-             .and(w -> w
+             .nested(w -> w
                      .eq(ChatMessage::getSendUserId, customClientUserId)
-                     .eq(ChatMessage::getReceivedUserId, queriedUserId))
-             .or(w -> w
+                     .eq(ChatMessage::getReceivedUserId, queriedUserId)
+                     .or()
                      .eq(ChatMessage::getSendUserId, queriedUserId)
-                     .eq(ChatMessage::getReceivedUserId, customClientUserId))
+                     .eq(ChatMessage::getReceivedUserId, customClientUserId)
+             )
+             .eq(ChatMessage::getUnreadFlag, false)
              .orderByAsc(ChatMessage::getCreatedTime)
              .list();
     }
