@@ -20,6 +20,6 @@ public class Util {
 
     }
     public static NamingService getNamingService(Environment env) throws NacosException {
-        return NamingFactory.createNamingService(env.getProperty("spring.cloud.nacos.discovery.server-addr") + ":8848");
+        return NamingFactory.createNamingService(env.getProperty("spring.cloud.nacos.discovery.server-addr"));
     }
 }

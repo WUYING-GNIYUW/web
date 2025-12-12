@@ -1,31 +1,22 @@
 package com.wuying.authorizationServer.security.handler.loginHandler;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.nacos.api.exception.NacosException;
-import com.alibaba.nacos.api.naming.NamingService;
-import com.alibaba.nacos.api.naming.pojo.Instance;
+
+import com.wuying.authorizationServer.service.UserServiceImpl;
 import com.wuying.common.pojo.UserInfo;
-import com.wuying.common.util.Util;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-//import org.redisson.api.RMap;
-//import org.redisson.api.RedissonClient;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -34,6 +25,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final RedissonClient redissonClient;
+    private final UserServiceImpl userServiceImpl;
     private final SavedRequestAwareAuthenticationSuccessHandler defaultHandler = new SavedRequestAwareAuthenticationSuccessHandler();
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -41,7 +33,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 //        RMap<String, String> map = redisson.getMap("userinfo:");
 //        map.put("field1", "value1");
 //        map.put("field2", "value2");
-        userDetails.getUsername();
 //        SavedRequest savedRequest = new HttpSessionRequestCache().getRequest(request, response);
 //        String targetUrl = (savedRequest != null) ? savedRequest.getRedirectUrl() : "/home";
 //        System.out.println(targetUrl);

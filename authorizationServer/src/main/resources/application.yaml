@@ -7,21 +7,24 @@ spring:
   config:
     import:
       - "nacos:authorization-server"
-#      - "nacos:common"
 #      - "classpath:jwt_properties.yml"
 #      - "classpath:user_message_properties.yml"
 
   cloud:
     nacos:
-#      discovery:
-#        server-addr: localhost:8848
+      discovery:
+        server-addr: 106.53.106.123:8848
+        ip: 106.53.106.123
 #        register-enabled: true
 #        enabled: true
       config:
-        server-addr: localhost:8848
-#        namespace: public
-#        group: DEFAULT_GROUP
+        server-addr: 106.53.106.123:8848
         file-extension: yaml
         refresh-enabled: true
 
 
+#  cloud:
+#    nacos:
+#      discovery:
+#        port: 8100
+#        server-addr: 106.53.106.123:8848
