@@ -21,6 +21,8 @@ public class UserInfo {
     @Builder.Default
     private String origin = "";
     @Builder.Default
-    private String SocketServerIp = "";
+    private String socketServerIp = "";
+    @Builder.Default
+    private String authorizationServerIp = "";
 }
 

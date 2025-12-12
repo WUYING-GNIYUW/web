@@ -230,7 +230,7 @@
           connectionStatus.value = s;
         }
 
-        // 识别客户端（保持原有识别逻辑，不涉及好友/instance）
+        // 识别客户端
         async function identifySelfClient() {
           const LOCAL_USER_STORAGE_KEY = 'ClientUser';
           try {
@@ -468,15 +468,15 @@
         }
 
         // --- 选择好友（与原 selectUser 逻辑一致） ---
-        function selectFriend(friend) {
+        async function selectFriend(friend) {
           if (!friend || !friend.friendId) return;
           const id = friend.friendId;
           selectedFriend.value = id;
 
           // 切换私聊：清空消息并读取历史/未读
           chatMessages.value = [];
-          readHistoryMessages();
-          readUnreadMessages();
+          await readHistoryMessages();
+          await readUnreadMessages();
 
           log(selectedFriend.value ? `切换到与 ${selectedFriend.value} 的私聊` : '切换到群聊');
         }

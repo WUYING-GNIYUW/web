@@ -12,7 +12,7 @@ public interface ChatMessageService extends IService<ChatMessage> {
 
     Result<?> accpetMessage(String userId, String message);
 
-    Result<?> forwardMessage(ChatMessage chatMessage, Principal principal);
+    Boolean forwardMessage(ChatMessage chatMessage, Principal principal);
 
     List<ChatMessage> readHistoryMessage(String queriedUserId, Principal principal);
 

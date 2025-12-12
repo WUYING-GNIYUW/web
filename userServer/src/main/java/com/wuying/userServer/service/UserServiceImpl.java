@@ -36,16 +36,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     }
     @Override
     public List<User> getUsers(User queriedUser) {
-        List<User> userList = lambdaQuery()
+        //        Map<String, Object> mapOfUser = BeanUtil.beanToMap(queryUser);
+//        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+//        list(userQueryWrapper.allEq(mapOfUser));
+        return lambdaQuery()
                 .eq(queriedUser.getUserId() != null, User::getUserId, queriedUser.getUserId())
                 .like(queriedUser.getUserName() != null, User::getUserName, queriedUser.getUserName())
                 .eq(queriedUser.getAvailableFlag() != null, User::getAvailableFlag, queriedUser.getAvailableFlag())
                 .eq(queriedUser.getOnlineFlag() != null, User::getOnlineFlag, queriedUser.getOnlineFlag())
                 .list();
-//        Map<String, Object> mapOfUser = BeanUtil.beanToMap(queryUser);
-//        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-//        list(userQueryWrapper.allEq(mapOfUser));
-        return userList;
     }
     @Override
     public Boolean removeUser(User removedUser) {
