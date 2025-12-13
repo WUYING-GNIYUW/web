@@ -50,27 +50,4 @@ public class SpringSecurityConfigure {
         http.addFilterAt(barerProcessFilter, SecurityWebFiltersOrder.AUTHENTICATION);
         return http.build();
     }
-//    @Bean
-//    public ReactiveClientRegistrationRepository clientRegistrationRepository(
-//            ClientRegistration MyClientRegistration
-//    ) {
-//        return new InMemoryReactiveClientRegistrationRepository(MyClientRegistration);
-//    }
-//
-//    @Bean
-//    public ClientRegistration MyClientRegistration(
-//    ) {
-//        return ClientRegistration.withRegistrationId("gatewayclient")
-//                .clientId("gatewayclient")
-//                .clientSecret("000000")
-//                .scope("openid", "profile")
-//                .issuerUri("http://authorizationserver:8081")
-//                .authorizationUri("http://authorizationserver:8081/oauth2/authorize")
-//                .tokenUri("http://authorizationserver:8081/oauth2/token")
-//                .userInfoUri("http://authorizationserver:8081/userinfo")
-//                .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
-//                .clientName("MyClient")
-//                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                .build();
-//    }
 }
