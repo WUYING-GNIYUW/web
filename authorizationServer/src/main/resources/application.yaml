@@ -13,12 +13,12 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 106.53.106.123:8848
-        ip: 106.53.106.123
+        server-addr: local:8848
+        ip: local
 #        register-enabled: true
 #        enabled: true
       config:
-        server-addr: 106.53.106.123:8848
+        server-addr: local:8848
         file-extension: yaml
         refresh-enabled: true
 
