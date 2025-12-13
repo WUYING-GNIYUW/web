@@ -67,7 +67,7 @@ public class AuthorizationServerConfig {
                 .clientId("Ov23lir1hPmC3gRHwFoX")
                 .clientSecret("517b714798ed0ac9be395eb5d06bcfca49691b14")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://authorizationserver:8100/login/oauth2/code/github")
+                .redirectUri("http://authorizationserver/login/oauth2/code/github")
                 .scope("read:user", "user:email")
                 .build();
     }
