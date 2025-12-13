@@ -23,6 +23,6 @@ public class UserInfo {
     @Builder.Default
     private String socketServerIp = "";
     @Builder.Default
-    private String authorizationServerIp = "";
+    private String authorizationInstanceId = "";
 }
 

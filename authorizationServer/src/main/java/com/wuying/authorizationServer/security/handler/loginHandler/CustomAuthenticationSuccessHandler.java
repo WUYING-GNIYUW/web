@@ -1,10 +1,10 @@
 package com.wuying.authorizationServer.security.handler.loginHandler;
 
 import cn.hutool.core.bean.BeanUtil;
-
 import com.wuying.authorizationServer.service.UserServiceImpl;
 import com.wuying.common.pojo.UserInfo;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -44,9 +46,20 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 //            userMap.put("port", instance.getPort());
 //            userMap.put("serviceName", instance.getServiceName());
         userMap.expire(Duration.ofHours(12));
-        UserInfo userInfo = UserInfo.builder().userId(userId).build();
+
+        Optional<Cookie> scCookie = Arrays.stream(request.getCookies()).filter(c -> c.getName().equals("sc-lb-itc-id")).findFirst();
+        Cookie cookie = scCookie.orElseThrow(RuntimeException::new);
+
+        UserInfo userInfo = UserInfo.builder().userId(userId).authorizationInstanceId(cookie.getValue()).build();
         Map<String,Object> userInfoMap = BeanUtil.beanToMap(userInfo);
         userMap.putAll(userInfoMap);
+
+        cookie = new Cookie("sc-lb-itc-id", "Error in destroy stickyCookie");
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+
         System.out.println("CustomAuthenticationSuccessHandler worked");
         defaultHandler.onAuthenticationSuccess(request, response, authentication);
 
