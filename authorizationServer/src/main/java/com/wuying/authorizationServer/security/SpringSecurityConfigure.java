@@ -126,22 +126,6 @@ public class SpringSecurityConfigure {
         return http.build();
     }
 
-//    @Bean
-//    public RegisteredClientRepository registeredClientRepository() {
-//        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-//                .clientId("gatewayclient")
-//                .clientSecret(passwordEncoder().encode("000000"))
-//                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-//                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                .redirectUri("http://www.localhost:8080/login/oauth2/code/gatewayClient")
-//                .scope(OidcScopes.OPENID)
-//                .scope(OidcScopes.PROFILE)
-//                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
-//                .build();
-//        System.out.println(registeredClient.toString());
-//        return new InMemoryRegisteredClientRepository(registeredClient);
-//    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         //return PasswordEncoderFactories.createDelegatingPasswordEncoder();
