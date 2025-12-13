@@ -29,7 +29,7 @@ public class AuthorizationServerConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer("http://106.53.106.123:8100")
+                .issuer("http://106.53.106.123")
                 .build();
     }
 
