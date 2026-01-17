@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>资源管理（Vue5）</title>
+    <style>
+        body { font-family: Arial, "Microsoft YaHei", sans-serif; margin: 24px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header { margin-bottom: 18px; }
+        .controls { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+        .resources { margin-top:12px; border-collapse: collapse; width:100%; }
+        .resources th, .resources td { padding:8px 10px; border:1px solid #ddd; text-align:left; }
+        .progress-bar { height:10px; background:#eee; border-radius:6px; overflow:hidden; }
+        .progress { height:100%; background:#3b82f6; width:0%; }
+        button { padding:6px 10px; border-radius:6px; border:1px solid #ccc; background:#fff; cursor:pointer; }
+        button:disabled { opacity:0.6; cursor:not-allowed; }
+        .small { font-size:12px; color:#666; }
+        tr.selected { background: #f0f8ff; }
+    </style>
+</head>
+<body>
+<div id="app" class="container">
+    <header>
+        <h1>资源管理</h1>
+        <p class="small">自动获取可用资源并支持基于已获取列表的下载与上传。</p>
+    </header>
+
+    <section class="controls">
+        <button @click="getAvailable" :disabled="loading">获取可用资源</button>
+        <span v-if="loading" class="small">请求中...</span>
+
+        <label style="display:inline-flex;align-items:center;gap:8px;">
+            <input type="file" @change="onFileChange" />
+            <button @click="upload" :disabled="!file || uploading">上传文件</button>
+        </label>
+
+        <div style="flex:1"></div>
+
+        <!-- 新增：下载所选资源（使用 getAvailable 时获取到的 filename） -->
+        <button @click="downloadSelected" :disabled="selectedIndex < 0 || downloadingId || _isDownloadBlocked()">下载所选资源</button>
+    </section>
+
+    <section v-if="uploading" style="margin-bottom:12px;">
+        <div class="small">上传进度：{{ uploadProgress }}%</div>
+        <div class="progress-bar"><div class="progress" :style="{width: uploadProgress + '%'}"></div></div>
+    </section>
+
+    <section>
+        <table class="resources" v-if="resources.length">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>选择</th>
+                <th>名称</th>
+                <th>大小</th>
+                <!-- 操作列已移除，统一使用下方“下载所选资源”按钮 -->
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(r, idx) in resources" :key="r.id || idx" :class="{selected: selectedIndex === idx}" @click="selectRow(idx)">
+                <!-- 单行下载按钮已移除 -->
+            </tr>
+            </tbody>
+        </table>
+
+        <div v-else class="small">尚无可用资源。页面加载后会自动尝试获取。</div>
+    </section>
+
+    <section style="margin-top:16px;" class="small">
+        <strong>说明：</strong>
+        <ul>
+            <li>页面加载完成后会自动调用 <code>/user/resource/getAvailable</code> 获取资源（并将第一个资源设为默认选中）。</li>
+            <li>下载请求将直接使用 <code>getAvailable</code> 返回的 <code>filename</code>（或 <code>name</code>）作为请求参数，而不会在下载时再次向后端请求资源信息。</li>
+            <li>按你的要求，点击下载时会发起 GET 请求：<code>/user/resource/upload?fname=filename</code>（如果你需要改回原先的 <code>/user/resource/download</code> 或改为 POST，请告知）。</li>
+        </ul>
+    </section>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const resources = ref([]);
+        const loading = ref(false);
+        const downloadingId = ref(null);
+
+        // 上传相关
+        const file = ref(null);
+        const uploading = ref(false);
+        const uploadProgress = ref(0);
+
+        // getAvailable 过期/阻塞逻辑
+        const GET_AVAILABLE_EXPIRE_MS = 15000; // 可调整
+        const getAvailableInProgress = ref(false);
+        const getAvailableExpireAt = ref(0);
+        let _expireTimerId = null;
+
+        // 选中行索引与选中文件名（基于 getAvailable 返回）
+        const selectedIndex = ref(-1);
+
+        function formatSize(n) {
+          if (!n && n !== 0) return '-';
+          const bytes = Number(n);
+          if (isNaN(bytes)) return '-';
+          if (bytes < 1024) return bytes + ' B';
+          if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+          if (bytes < 1024*1024*1024) return (bytes/(1024*1024)).toFixed(1) + ' MB';
+          return (bytes/(1024*1024*1024)).toFixed(2) + ' GB';
+        }
+
+        function _startExpireTimer() {
+          if (_expireTimerId) return;
+          _expireTimerId = setInterval(() => {
+            if (!getAvailableInProgress.value || Date.now() >= getAvailableExpireAt.value) {
+              clearInterval(_expireTimerId);
+              _expireTimerId = null;
+            }
+          }, 500);
+        }
+
+        async function getAvailable() {
+          loading.value = true;
+          getAvailableInProgress.value = true;
+          getAvailableExpireAt.value = Date.now() + GET_AVAILABLE_EXPIRE_MS;
+          _startExpireTimer();
+
+          try {
+            const resp = await fetch('/user/resource/getAvailable', { method: 'GET', credentials: 'same-origin' });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+            const parsed = await resp.json();
+            if (!parsed || !Array.isArray(parsed.data)) {
+              throw new Error('响应格式不正确：期望 Result.data 为 ResourceInfo 数组');
+            }
+
+            resources.value = parsed.data;
+
+            // 自动选中第一项（如果存在）
+            if (resources.value.length > 0) {
+              selectedIndex.value = 0;
+            } else {
+              selectedIndex.value = -1;
+            }
+
+          } catch (e) {
+            alert('获取可用资源失败：' + e.message);
+            console.error(e);
+          } finally {
+            loading.value = false;
+            getAvailableInProgress.value = false;
+            getAvailableExpireAt.value = 0;
+            if (_expireTimerId) { clearInterval(_expireTimerId); _expireTimerId = null; }
+          }
+        }
+
+        function getFileNameFromDisposition(disposition) {
+          if (!disposition) return null;
+          const fnStar = disposition.match(/filename\*=(?:UTF-8'')?([^;]+)/i);
+          if (fnStar) return decodeURIComponent(fnStar[1].replace(/\"/g, ''));
+          const fn = disposition.match(/filename=(?:\")?([^;\"]+)(?:\")?/i);
+          if (fn) return fn[1];
+          return null;
+        }
+
+        function _isDownloadBlocked() {
+          return getAvailableInProgress.value && Date.now() < getAvailableExpireAt.value;
+        }
+
+        function _getRemainingSeconds() {
+          if (!getAvailableInProgress.value) return 0;
+          const remain = Math.ceil((getAvailableExpireAt.value - Date.now()) / 1000);
+          return remain > 0 ? remain : 0;
+        }
+
+        // 选择行
+        function selectRow(idx) {
+          selectedIndex.value = idx;
+        }
+
+        function onSelect(idx) {
+          selectedIndex.value = idx;
+        }
+
+        // 下载：直接使用已获取的 filename（不再额外向后端请求资源信息）
+        async function downloadByFilename(filename) {
+          if (!filename) { alert('未提供文件名，无法下载'); return; }
+
+          // 如果仍在 getAvailable 的过期窗口内且请求尚未完成，阻止下载
+          if (_isDownloadBlocked()) {
+            const remain = _getRemainingSeconds();
+            alert(`正在获取可用资源（请等待 ${remain} 秒或直到请求完成），下载请求被阻止。`);
+            return;
+          }
+
+          // 此处按你的要求发送 GET 请求到 /user/resource/upload?fname=filename
+          // （如果你需要 POST 或改为 /user/resource/download 请告知）
+          const url = '/user/resource/upload?fname=' + encodeURIComponent(filename);
+          downloadingId.value = filename; // 用 filename 表示正在下载以避免重复触发
+
+          try {
+            const resp = await fetch(url, { method: 'GET', credentials: 'same-origin' });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+            const ct = resp.headers.get('Content-Type') || '';
+            if (ct.includes('application/json')) {
+              const j = await resp.json();
+              if (j.url) {
+                window.open(j.url, '_blank');
+              } else {
+                alert('服务器返回 JSON，但未包含 url 字段');
+              }
+            } else {
+              const blob = await resp.blob();
+              const disp = resp.headers.get('Content-Disposition');
+              const fname = getFileNameFromDisposition(disp) || filename;
+              const objUrl = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = objUrl;
+              a.download = fname;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              URL.revokeObjectURL(objUrl);
+            }
+          } catch (e) {
+            alert('下载失败：' + e.message);
+            console.error(e);
+          } finally {
+            downloadingId.value = null;
+          }
+        }
+
+        // 下载所选（从选中索引获取 filename）
+        function downloadSelected() {
+          if (selectedIndex.value < 0 || selectedIndex.value >= resources.value.length) {
+            alert('请先选择要下载的资源');
+            return;
+          }
+          const r = resources.value[selectedIndex.value];
+          const fname = r.filename || r.name;
+          downloadByFilename(fname);
+        }
+
+        function onFileChange(e) {
+          const f = e.target.files && e.target.files[0];
+          file.value = f || null;
+        }
+
+        function upload() {
+          if (!file.value) {
+            alert('请先选择文件');
+            return;
+          }
+
+          uploading.value = true;
+          uploadProgress.value = 0;
+
+          const fd = new FormData();
+          fd.append('file', file.value);
+
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', '/user/resource/upload', true);
+          xhr.withCredentials = true;
+
+          xhr.upload.onprogress = function(e) {
+            if (e.lengthComputable) {
+              uploadProgress.value = Math.round((e.loaded / e.total) * 100);
+            }
+          };
+
+          xhr.onload = function() {
+            uploading.value = false;
+            try {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                try { JSON.parse(xhr.responseText); } catch (e) { /* ignore */ }
+                alert('上传完成');
+                getAvailable();
+              } else {
+                alert('上传失败：HTTP ' + xhr.status);
+                console.error('upload error', xhr.responseText);
+              }
+            } catch (e) {
+              alert('上传后处理失败：' + e.message);
+            }
+          };
+
+          xhr.onerror = function() {
+            uploading.value = false;
+            alert('上传请求出错');
+          };
+
+          xhr.send(fd);
+        }
+
+        onMounted(() => {
+          // 页面加载完成后自动触发获取资源
+          getAvailable();
+        });
+
+        return {
+          resources, loading, getAvailable, formatSize,
+          file, onFileChange, upload, uploading, uploadProgress,
+          downloadingId, getAvailableInProgress, getAvailableExpireAt, GET_AVAILABLE_EXPIRE_MS,
+          _getRemainingSeconds, _isDownloadBlocked,
+          selectedIndex, selectRow, onSelect, downloadByFilename, downloadSelected
+        };
+      }
+    }).mount('#app');
+</script>
+</body>
+</html>
