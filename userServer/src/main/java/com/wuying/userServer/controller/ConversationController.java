@@ -20,15 +20,6 @@ import java.util.List;
 //@RequestMapping("/conversation")
 public class ConversationController {
     private final ConversationServiceImpl conversationServiceImpl;
-
-    @GetMapping("/info_of_conversations")
-    public Result<?> getInfoOfConversations(@RequestParam String contactUserId, @AuthenticationPrincipal Jwt jwt) {
-        return conversationServiceImpl.buildTemporaryConversations(jwt.getClaimAsString("userId"),contactUserId);
-    }
-    @PostMapping("/build_temporary_conversations")
-    public Result<?> buildTemporaryConversations(@RequestParam String contactUserId, @AuthenticationPrincipal Jwt jwt) {
-        return conversationServiceImpl.buildTemporaryConversations(jwt.getClaimAsString("userId"),contactUserId);
-    }
     @MessageMapping("/user/conversation/message")
     public Result<Boolean> forwardMessage(@Payload ChatMessage chatMessage, Principal principal) {
         return Result.<Boolean>builder().data(conversationServiceImpl.forwardMessage(chatMessage, principal)).build();

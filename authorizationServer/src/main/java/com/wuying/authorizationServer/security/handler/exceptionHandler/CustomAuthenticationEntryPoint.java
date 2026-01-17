@@ -3,12 +3,14 @@ package com.wuying.authorizationServer.security.handler.exceptionHandler;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.wuying.authorizationServer.security.handler.loginHandler.CustomAuthenticationSuccessHandler;
 import com.wuying.common.util.Util;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.AuthenticationException;
@@ -25,6 +27,7 @@ import java.util.Optional;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private final Environment env;
+    private static final Logger log = Util.getLogger(CustomAuthenticationSuccessHandler.class);
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         RequestCache requestCache = new HttpSessionRequestCache();
@@ -45,15 +48,17 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
             Cookie cookie = new Cookie("sc-lb-itc-id", "Error in set stickyCookie");
             if (instance.getInstanceId() != null) {
+                log.atInfo().log("create cookie");
                 cookie = new Cookie("sc-lb-itc-id", instance.getInstanceId());
                 cookie.setPath("/");
                 cookie.setMaxAge(6);
                 cookie.setHttpOnly(true);
                 response.addCookie(cookie);
             } else {
-                System.out.println("Error");
+                log.atError().log("Error");
             }
             response.addCookie(cookie);
+//            System.out.println(response.toString());
         } catch (NacosException e) {
             throw new RuntimeException(e);
         }

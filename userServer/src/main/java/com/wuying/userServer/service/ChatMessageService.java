@@ -8,8 +8,6 @@ import java.security.Principal;
 import java.util.List;
 
 public interface ChatMessageService extends IService<ChatMessage> {
-    Result<?> buildTemporaryConversations(String hostUserId, String ContactUserId);
-
     Result<?> accpetMessage(String userId, String message);
 
     Boolean forwardMessage(ChatMessage chatMessage, Principal principal);

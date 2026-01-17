@@ -16,7 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
-@Tag(name = "Foruser")
+@Tag(name = "ForUser")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserController {
     private final UserServiceImpl userServiceImpl;

@@ -10,6 +10,8 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
+import org.springframework.web.filter.ForwardedHeaderFilter;
+import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 
 
 @EnableWebFluxSecurity
@@ -50,27 +52,8 @@ public class SpringSecurityConfigure {
         http.addFilterAt(barerProcessFilter, SecurityWebFiltersOrder.AUTHENTICATION);
         return http.build();
     }
+
 //    @Bean
-//    public ReactiveClientRegistrationRepository clientRegistrationRepository(
-//            ClientRegistration MyClientRegistration
-//    ) {
-//        return new InMemoryReactiveClientRegistrationRepository(MyClientRegistration);
-//    }
-//
-//    @Bean
-//    public ClientRegistration MyClientRegistration(
-//    ) {
-//        return ClientRegistration.withRegistrationId("gatewayclient")
-//                .clientId("gatewayclient")
-//                .clientSecret("000000")
-//                .scope("openid", "profile")
-//                .issuerUri("http://authorizationserver:8081")
-//                .authorizationUri("http://authorizationserver:8081/oauth2/authorize")
-//                .tokenUri("http://authorizationserver:8081/oauth2/token")
-//                .userInfoUri("http://authorizationserver:8081/userinfo")
-//                .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
-//                .clientName("MyClient")
-//                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                .build();
-//    }
+//    ForwardedHeaderFilter forwardedHeaderFilter() { return new ForwardedHeaderFilter(); }
+
 }

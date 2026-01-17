@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 
 @Configuration
@@ -93,7 +94,6 @@ public class SpringSecurityConfigure {
         http
                 .formLogin(form ->
                 form
-//                        .loginPage("/pblc/sttc/hl/loginPage")
                         .loginProcessingUrl("/login")
                         .usernameParameter("userId")
                         .successHandler(customAuthenticationSuccessHandler)
@@ -138,15 +138,8 @@ public class SpringSecurityConfigure {
         firewall.setAllowSemicolon(true);
         return firewall;
     }
+    @Bean
+    ForwardedHeaderFilter forwardedHeaderFilter() { return new ForwardedHeaderFilter(); }
 
-//    @Bean
-//    WebMvcConfigurer disablePathPatternParser() {
-//        return new WebMvcConfigurer() {
-//            @Override
-//            public void configurePathMatch(PathMatchConfigurer configurer) {
-//                configurer.setPatternParser(null); // 使用 AntPathMatcher 而非 PathPattern
-//            }
-//        };
-//    }
 
 }

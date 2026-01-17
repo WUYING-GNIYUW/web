@@ -3,6 +3,7 @@ package com.wuying.authorizationServer.security.handler.loginHandler;
 import cn.hutool.core.bean.BeanUtil;
 import com.wuying.authorizationServer.service.UserServiceImpl;
 import com.wuying.common.pojo.UserInfo;
+import com.wuying.common.util.Util;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +31,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     private final RedissonClient redissonClient;
     private final UserServiceImpl userServiceImpl;
     private final SavedRequestAwareAuthenticationSuccessHandler defaultHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+    private static final Logger log = Util.getLogger(CustomAuthenticationSuccessHandler.class);
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         UserDetails userDetails = (UserDetails)authentication.getPrincipal();
@@ -59,8 +62,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         cookie.setMaxAge(0);
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
-
-        System.out.println("CustomAuthenticationSuccessHandler worked");
+        log.atInfo().log("CustomAuthenticationSuccessHandler worked");
         defaultHandler.onAuthenticationSuccess(request, response, authentication);
 
 //        response.sendRedirect(targetUrl);
