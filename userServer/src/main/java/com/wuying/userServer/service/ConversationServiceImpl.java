@@ -26,11 +26,6 @@ public class ConversationServiceImpl extends ServiceImpl<ChatMessageMapper, Chat
     private final RedissonClient redisson;
     private final UserServiceImpl userServiceImpl;
     private final Environment env;
-    @Override
-    public Result<?> buildTemporaryConversations(String hostUserId, String ContactUserId) {
-        save(ChatMessage.builder().build());
-        return Result.<Boolean>builder().data(true).build();
-    }
 
     @Override
     public Result<?> accpetMessage(String userId, String message) {
@@ -106,9 +101,6 @@ public class ConversationServiceImpl extends ServiceImpl<ChatMessageMapper, Chat
                 .update();
         return UnreadMessageList;
     }
-
-
-
 
     private Boolean storageMessage(ChatMessage chatMessage) {
         return save(chatMessage);

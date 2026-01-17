@@ -10,6 +10,8 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
+import org.springframework.web.filter.ForwardedHeaderFilter;
+import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 
 
 @EnableWebFluxSecurity
@@ -50,4 +52,8 @@ public class SpringSecurityConfigure {
         http.addFilterAt(barerProcessFilter, SecurityWebFiltersOrder.AUTHENTICATION);
         return http.build();
     }
+
+//    @Bean
+//    ForwardedHeaderFilter forwardedHeaderFilter() { return new ForwardedHeaderFilter(); }
+
 }

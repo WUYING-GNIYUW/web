@@ -11,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -48,5 +49,7 @@ public class SpringSecurityConfigure {
         firewall.setAllowSemicolon(true);
         return firewall;
     }
+    @Bean
+    ForwardedHeaderFilter forwardedHeaderFilter() { return new ForwardedHeaderFilter(); }
 
 }
