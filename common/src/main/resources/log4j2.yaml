@@ -1,0 +1,63 @@
+Configuration:
+  status: warn
+  name: DefaultConfig
+  monitorInterval: 30
+
+  Properties:
+    Property:
+      - name: logPath
+        value: logs
+      - name: pattern
+        value: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
+
+  Appenders:
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      PatternLayout:
+        pattern: ${pattern}
+
+    # 定义ASYNC-REMOTE appender
+    Async:
+      name: ASYNC-REMOTE
+      bufferSize: 1024
+      AppenderRef:
+        ref: Console
+
+    RollingFile:
+      name: File
+      fileName: ${logPath}/app.log
+      filePattern: "${logPath}/app-%d{yyyy-MM-dd}-%i.log.gz"
+      PatternLayout:
+        pattern: ${pattern}
+      Policies:
+        TimeBasedTriggeringPolicy:
+          modulate: true
+          interval: 1
+        SizeBasedTriggeringPolicy:
+          size: 100MB
+      DefaultRolloverStrategy:
+        max: 10
+
+  Loggers:
+    Logger:
+      - name: com.alibaba.nacos
+        level: INFO
+        additivity: false
+        AppenderRef:
+          - ref: Console
+          - ref: File
+
+      - name: com.alibaba.nacos.shaded.io.grpc
+        level: INFO
+        additivity: false
+        AppenderRef:
+          - ref: Console
+          - ref: File
+          - ref: ASYNC-REMOTE  # 引用上面定义的ASYNC-REMOTE
+
+    Root:
+      level: INFO
+      AppenderRef:
+        - ref: Console
+        - ref: File

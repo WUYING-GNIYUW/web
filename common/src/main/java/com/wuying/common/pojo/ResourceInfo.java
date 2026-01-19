@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 public class ResourceInfo {
     String filename;
-    String absoluteLocation;
-    String format;
+//    String absoluteLocation;
+//    String format;
 }

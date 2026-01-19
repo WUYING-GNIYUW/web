@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
 import java.time.Duration;
+import java.util.Objects;
 
 @Configuration
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -29,7 +30,7 @@ public class AuthorizationServerConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer("http://106.53.106.123")
+                .issuer(Objects.requireNonNull(env.getProperty("gateway-client.issuer")))
                 .build();
     }
 

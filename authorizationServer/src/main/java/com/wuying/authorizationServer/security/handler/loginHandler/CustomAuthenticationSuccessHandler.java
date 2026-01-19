@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -24,23 +25,15 @@ import java.util.Optional;
 
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
+@Slf4j
 @Component
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final RedissonClient redissonClient;
     private final UserServiceImpl userServiceImpl;
     private final SavedRequestAwareAuthenticationSuccessHandler defaultHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-    private static final Logger log = Util.getLogger(CustomAuthenticationSuccessHandler.class);
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        UserDetails userDetails = (UserDetails)authentication.getPrincipal();
-//        RMap<String, String> map = redisson.getMap("userinfo:");
-//        map.put("field1", "value1");
-//        map.put("field2", "value2");
-//        SavedRequest savedRequest = new HttpSessionRequestCache().getRequest(request, response);
-//        String targetUrl = (savedRequest != null) ? savedRequest.getRedirectUrl() : "/home";
-//        System.out.println(targetUrl);
         response.setContentType("text/html;charset=utf-8");
         String userId = ((UserDetails)authentication.getPrincipal()).getUsername();
         RMap<String, Object> userMap = redissonClient.getMap("user:" + userId);
