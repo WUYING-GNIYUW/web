@@ -1,9 +1,7 @@
 package com.wuying.authorizationServer.security.handler.loginHandler;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.wuying.authorizationServer.service.UserServiceImpl;
 import com.wuying.common.pojo.UserInfo;
-import com.wuying.common.util.Util;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +27,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final RedissonClient redissonClient;
-    private final UserServiceImpl userServiceImpl;
     private final SavedRequestAwareAuthenticationSuccessHandler defaultHandler = new SavedRequestAwareAuthenticationSuccessHandler();
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
