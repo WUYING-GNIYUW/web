@@ -1,5 +1,7 @@
 package com.wuying.userServer.controller;
 
+import com.wuying.common.Marker.Create;
+import com.wuying.common.Marker.Update;
 import com.wuying.common.pojo.Result;
 import com.wuying.common.pojo.User;
 import com.wuying.common.pojo.UserInfo;
@@ -8,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
@@ -35,12 +38,12 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public Result<Boolean> addUser(@RequestBody User addedUser) {
+    public Result<Boolean> addUser(@RequestBody @Validated(Create.class) User addedUser) {
         return Result.<Boolean>builder().data(userServiceImpl.addUser(addedUser)).build();
     }
 
     @PostMapping("/register")
-    public Result<Boolean> registerUser(@RequestBody User registeredUser) {
+    public Result<Boolean> registerUser(@RequestBody @Validated(Create.class) User registeredUser) {
         return Result.<Boolean>builder().data(userServiceImpl.addUser(registeredUser)).build();
     }
 
@@ -50,12 +53,12 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public Result<Boolean> update(@RequestBody User UpdatedUser) {
+    public Result<Boolean> update(@RequestBody @Validated(Update.class) User UpdatedUser) {
         return Result.<Boolean>builder().data(userServiceImpl.updateById(UpdatedUser)).build();
     }
 
     @PostMapping("/remove")
-    public Result<Boolean> removeUser(@RequestBody User remomvedUser) {
+    public Result<Boolean> removeUser(@RequestBody @Validated(Update.class) User remomvedUser) {
         return Result.<Boolean>builder().data(userServiceImpl.removeById(remomvedUser)).build();
     }
 

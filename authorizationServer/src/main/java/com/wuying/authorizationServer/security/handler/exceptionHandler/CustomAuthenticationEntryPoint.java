@@ -3,14 +3,13 @@ package com.wuying.authorizationServer.security.handler.exceptionHandler;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import com.wuying.authorizationServer.security.handler.loginHandler.CustomAuthenticationSuccessHandler;
 import com.wuying.common.util.Util;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.AuthenticationException;
@@ -22,18 +21,17 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-
+@Slf4j
 @Component
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private final Environment env;
-    private static final Logger log = Util.getLogger(CustomAuthenticationSuccessHandler.class);
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         RequestCache requestCache = new HttpSessionRequestCache();
         requestCache.saveRequest(request, response);
 
-        String redirectUrl = "/public/getResource?type=static&format=html&resource_name=loginPage&file_extension=html";
+        String redirectUrl = "/public/getResource?resource_name=loginPage.html";
         response.sendRedirect(redirectUrl);
         response.setContentType("text/html;charset=utf-8");
         NamingService namingService = null;
