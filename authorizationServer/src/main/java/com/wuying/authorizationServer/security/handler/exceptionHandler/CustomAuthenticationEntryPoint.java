@@ -4,7 +4,6 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.wuying.common.util.Util;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,14 +26,14 @@ import java.util.Optional;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private final Environment env;
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException{
         RequestCache requestCache = new HttpSessionRequestCache();
         requestCache.saveRequest(request, response);
 
         String redirectUrl = "/public/getResource?resource_name=loginPage.html";
         response.sendRedirect(redirectUrl);
         response.setContentType("text/html;charset=utf-8");
-        NamingService namingService = null;
+        NamingService namingService;
         try {
             namingService = Util.getNamingService(env);
             List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));
@@ -56,7 +55,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                 log.atError().log("Error");
             }
             response.addCookie(cookie);
-//            System.out.println(response.toString());
         } catch (NacosException e) {
             throw new RuntimeException(e);
         }

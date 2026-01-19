@@ -1,17 +1,10 @@
 package com.wuying.userServer.service;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuying.common.pojo.ResourceInfo;
 import com.wuying.common.pojo.Result;
-import com.wuying.common.pojo.User;
 import com.wuying.common.util.Util;
-import com.wuying.userServer.mapper.UserMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.jni.FileInfo;
-import org.redisson.api.RedissonClient;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
@@ -20,9 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -45,7 +36,7 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public List<ResourceInfo> getAvailable(Principal principal) {
         String fileRestoredPath = env.getProperty("file-restored-path");
-        Path dir = null;
+        Path dir;
         if (fileRestoredPath != null) {
             dir = Paths.get(fileRestoredPath,principal.getName());
             if (!Files.exists(dir) || !Files.isDirectory(dir)) {
@@ -56,9 +47,7 @@ public class ResourceServiceImpl implements ResourceService {
                 try (Stream<Path> stream = Files.list(dir)) {
                     files = stream
                             .filter(Files::isRegularFile)
-                            .map(path -> {
-                                return ResourceInfo.builder().filename(path.getFileName().toString()).build();
-                            })
+                            .map(path -> ResourceInfo.builder().filename(path.getFileName().toString()).build())
                             .collect(Collectors.toList());
                 } catch (IOException e) {
                     log.atError().log(e.getMessage());
@@ -73,7 +62,7 @@ public class ResourceServiceImpl implements ResourceService {
     public ResponseEntity<Result<?>> download(String resourceName,
                                               Principal principal) throws MalformedURLException {
         String fileRestoredPath = env.getProperty("file-restored-path");
-        Path filePath = null;
+        Path filePath;
         if (fileRestoredPath != null) {
             filePath = Paths.get(fileRestoredPath,principal.getName(),resourceName).resolve(resourceName).normalize();
             Resource resource;
@@ -105,13 +94,13 @@ public class ResourceServiceImpl implements ResourceService {
 
         String originalFilename = file.getOriginalFilename();
 
-        Path resourceStorePath = null;
+        Path resourceStorePath;
         if (fileRestoredPath != null) {
             resourceStorePath = Paths.get(fileRestoredPath,principal.getName());
             if (!Files.exists(resourceStorePath)) {
                 Files.createDirectories(resourceStorePath);
             }
-            Path targetPath = null;
+            Path targetPath;
             if (originalFilename != null) {
                 targetPath = resourceStorePath.resolve(originalFilename);
                 Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
