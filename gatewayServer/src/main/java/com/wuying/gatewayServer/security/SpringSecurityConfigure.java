@@ -31,7 +31,7 @@ public class SpringSecurityConfigure {
         http
                 .authorizeExchange((authorize) -> authorize
                 .pathMatchers(
-                        "/api/**","error/**","/favicon.ico","/oauth2/**","/userinfo/**","/connect/**","/public/**"
+                        "/api/**","error/**","/favicon.ico","/oauth2/**","/userinfo/**","/connect/**","/public/**","/login","/login/**"
                 ).permitAll()
                 .anyExchange().authenticated()
         );
@@ -43,7 +43,8 @@ public class SpringSecurityConfigure {
 //                requestCache(requestCache));
         http
                 .oauth2Login(Customizer.withDefaults())
-                .oauth2Client(Customizer.withDefaults()).requestCache(Cache ->Cache.requestCache(new WebSessionServerRequestCache()));
+                .oauth2Client(Customizer.withDefaults());
+//                .requestCache(Cache ->Cache.requestCache(new WebSessionServerRequestCache()));
 
 //        http.exceptionHandling(exception -> exception
 //                //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
@@ -53,7 +54,9 @@ public class SpringSecurityConfigure {
         return http.build();
     }
 
-//    @Bean
-//    ForwardedHeaderFilter forwardedHeaderFilter() { return new ForwardedHeaderFilter(); }
+    @Bean
+    public ForwardedHeaderTransformer forwardedHeaderTransformer() {
+        return new ForwardedHeaderTransformer();
+    }
 
 }

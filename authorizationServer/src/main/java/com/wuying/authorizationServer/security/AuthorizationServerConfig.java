@@ -1,6 +1,7 @@
 package com.wuying.authorizationServer.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,7 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 
 import java.time.Duration;
 import java.util.Objects;
-
+@Slf4j
 @Configuration
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AuthorizationServerConfig {

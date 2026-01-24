@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
 
@@ -55,6 +56,7 @@ public class SpringSecurityConfigure {
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable);
+        http.addFilterBefore(new ForwardedHeaderFilter(), RequestCacheAwareFilter.class);
 
         return http.build();
     }
@@ -96,7 +98,7 @@ public class SpringSecurityConfigure {
                 form
                         .loginProcessingUrl("/login")
                         .usernameParameter("userId")
-                        .successHandler(customAuthenticationSuccessHandler)
+//                        .successHandler(customAuthenticationSuccessHandler)
                         .permitAll()
         )
                 .oauth2Login(Customizer.withDefaults());
@@ -123,6 +125,7 @@ public class SpringSecurityConfigure {
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable);
 
+//        http.addFilterBefore(new ForwardedHeaderFilter(), RequestCacheAwareFilter.class);
         return http.build();
     }
 
@@ -138,7 +141,9 @@ public class SpringSecurityConfigure {
         firewall.setAllowSemicolon(true);
         return firewall;
     }
+
     @Bean
+//    @Order(Ordered.HIGHEST_PRECEDENCE)
     ForwardedHeaderFilter forwardedHeaderFilter() { return new ForwardedHeaderFilter(); }
 
 
