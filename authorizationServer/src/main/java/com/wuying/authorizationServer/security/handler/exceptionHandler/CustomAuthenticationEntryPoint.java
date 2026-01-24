@@ -10,12 +10,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,11 +31,17 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException{
         RequestCache requestCache = new HttpSessionRequestCache();
         requestCache.saveRequest(request, response);
-
+//        String redirectUrl = request.getHeader("X-Forwarded-Proto")+"://"+request.getHeader("X-Forwarded-Host")+"/public/getResource?resource_name=loginPage.html";
         String redirectUrl = "/public/getResource?resource_name=loginPage.html";
         response.sendRedirect(redirectUrl);
         response.setContentType("text/html;charset=utf-8");
         NamingService namingService;
+
+//        log.atInfo().log(redirectUrl);
+//        log.atInfo().log("X-Forwarded-Port:"+request.getHeader("X-Forwarded-Port"));
+//        log.atInfo().log("X-Forwarded-Host:"+request.getHeader("X-Forwarded-Host"));
+//        log.atInfo().log("X-Forwarded-Proto:"+request.getHeader("X-Forwarded-Proto"));
+//        log.atInfo().log("X-Forwarded-For:"+request.getHeader("X-Forwarded-For"));
         try {
             namingService = Util.getNamingService(env);
             List<Instance> allInstances = namingService.getAllInstances(env.getProperty("spring.application.name"));

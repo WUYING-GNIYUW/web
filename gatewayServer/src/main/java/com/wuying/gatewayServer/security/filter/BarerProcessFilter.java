@@ -1,19 +1,21 @@
 package com.wuying.gatewayServer.security.filter;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
+@Slf4j
 @Component
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class BarerProcessFilter implements WebFilter {
@@ -22,8 +24,15 @@ public class BarerProcessFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         // 从 Reactor SecurityContext 获取 Authentication（必须是已认证用户）
         return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
+                .map(SecurityContext::getAuthentication)
                 .flatMap(auth -> {
+
+
+                    HttpHeaders headers = exchange.getRequest().getHeaders();
+                    log.atInfo().log("dddddddddddddddddddddddddddddddddddddddddddddddddd");
+                    headers.forEach((key, value) -> log.atInfo().log(key + " = " + value));
+
+
                     // 尝试从 Authentication 推断 registrationId（如果是 OAuth2AuthenticationToken）
                     String registrationId = null;
                     if (auth instanceof OAuth2AuthenticationToken) {
