@@ -4,25 +4,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.security.Principal;
 import java.time.Duration;
 import java.util.concurrent.ScheduledFuture;
 
-@Service
+@Component
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class TaskExm {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final TaskScheduler taskScheduler;
     private ScheduledFuture<?> future;
-
-//    public TaskExm() {
-//        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-//        scheduler.initialize();
-//        this.taskScheduler = scheduler;
-//    }
 
     // 任务内容
     private void task(Principal principal) {

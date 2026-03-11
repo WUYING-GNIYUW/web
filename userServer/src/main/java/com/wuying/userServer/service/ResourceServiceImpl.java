@@ -64,7 +64,7 @@ public class ResourceServiceImpl implements ResourceService {
         String fileRestoredPath = env.getProperty("file-restored-path");
         Path filePath;
         if (fileRestoredPath != null) {
-            filePath = Paths.get(fileRestoredPath,principal.getName(),resourceName).resolve(resourceName).normalize();
+            filePath = Paths.get(fileRestoredPath,principal.getName()).resolve(resourceName).normalize();
             Resource resource;
             resource = new UrlResource(filePath.toUri());
             if (!resource.exists()) {
@@ -80,7 +80,8 @@ public class ResourceServiceImpl implements ResourceService {
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         log.atInfo().log("Generated internal URI:" + internalUri);
 
-        return ResponseEntity.ok().headers(headers).body(Result.builder().message("resource downloaded").build());
+//        return ResponseEntity.ok().headers(headers).body(Result.builder().message("resource downloaded").build());
+        return ResponseEntity.ok().headers(headers).build();
     }
 
     @Override

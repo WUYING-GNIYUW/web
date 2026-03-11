@@ -38,7 +38,7 @@
         <div style="flex:1"></div>
 
         <!-- 新增：下载所选资源（使用 getAvailable 时获取到的 filename） -->
-        <button @click="downloadSelected" :disabled="selectedIndex < 0 || downloadingId || _isDownloadBlocked()">下载所选资源</button>
+        <button @click="downloadSelected" :disabled="selectedIndex < 0 || downloadingId || isDownloadBlocked()">下载所选资源</button>
     </section>
 
     <section v-if="uploading" style="margin-bottom:12px;">
@@ -60,6 +60,10 @@
             <tbody>
             <tr v-for="(r, idx) in resources" :key="r.id || idx" :class="{selected: selectedIndex === idx}" @click="selectRow(idx)">
                 <!-- 单行下载按钮已移除 -->
+                <td>{{ idx + 1 }}</td>
+                <td><input type="radio" :checked="selectedIndex === idx" @change="onSelect(idx)"></td>
+                <td>{{ r.filename || r.name || '-' }}</td>
+                <td>{{ formatSize(r.size) }}</td>
             </tr>
             </tbody>
         </table>
@@ -78,6 +82,10 @@
 </div>
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- 新增 axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 <script>
     const { createApp, ref, onMounted } = Vue;
 
@@ -111,7 +119,7 @@
           return (bytes/(1024*1024*1024)).toFixed(2) + ' GB';
         }
 
-        function _startExpireTimer() {
+        function startExpireTimer() {
           if (_expireTimerId) return;
           _expireTimerId = setInterval(() => {
             if (!getAvailableInProgress.value || Date.now() >= getAvailableExpireAt.value) {
@@ -125,18 +133,15 @@
           loading.value = true;
           getAvailableInProgress.value = true;
           getAvailableExpireAt.value = Date.now() + GET_AVAILABLE_EXPIRE_MS;
-          _startExpireTimer();
+          startExpireTimer();
 
           try {
-            const resp = await fetch('/user/resource/getAvailable', { method: 'GET', credentials: 'same-origin' });
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            // 使用 axios 发起 GET 请求（带 cookie）
+            const resp = await axios.get('/user/resource/getAvailable', { withCredentials: true });
+            // 期望后端返回结构为 { data: { ... } } 或 { data: [...] }
+            const payload = resp && resp.data ? resp.data.data : null;
 
-            const parsed = await resp.json();
-            if (!parsed || !Array.isArray(parsed.data)) {
-              throw new Error('响应格式不正确：期望 Result.data 为 ResourceInfo 数组');
-            }
-
-            resources.value = parsed.data;
+            resources.value = Array.isArray(payload) ? payload : [];
 
             // 自动选中第一项（如果存在）
             if (resources.value.length > 0) {
@@ -146,7 +151,7 @@
             }
 
           } catch (e) {
-            alert('获取可用资源失败：' + e.message);
+            alert('获取可用资源失败：' + (e && e.message ? e.message : JSON.stringify(e)));
             console.error(e);
           } finally {
             loading.value = false;
@@ -165,11 +170,11 @@
           return null;
         }
 
-        function _isDownloadBlocked() {
+        function isDownloadBlocked() {
           return getAvailableInProgress.value && Date.now() < getAvailableExpireAt.value;
         }
 
-        function _getRemainingSeconds() {
+        function getRemainingSeconds() {
           if (!getAvailableInProgress.value) return 0;
           const remain = Math.ceil((getAvailableExpireAt.value - Date.now()) / 1000);
           return remain > 0 ? remain : 0;
@@ -189,44 +194,25 @@
           if (!filename) { alert('未提供文件名，无法下载'); return; }
 
           // 如果仍在 getAvailable 的过期窗口内且请求尚未完成，阻止下载
-          if (_isDownloadBlocked()) {
-            const remain = _getRemainingSeconds();
+          if (isDownloadBlocked()) {
+            const remain = getRemainingSeconds();
             alert(`正在获取可用资源（请等待 ${remain} 秒或直到请求完成），下载请求被阻止。`);
             return;
           }
 
-          // 此处按你的要求发送 GET 请求到 /user/resource/upload?fname=filename
-          // （如果你需要 POST 或改为 /user/resource/download 请告知）
-          const url = '/user/resource/upload?fname=' + encodeURIComponent(filename);
-          downloadingId.value = filename; // 用 filename 表示正在下载以避免重复触发
-
           try {
-            const resp = await fetch(url, { method: 'GET', credentials: 'same-origin' });
-            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            // 创建隐藏表单（POST）或者直接 a 标签 GET 方式
+            const url = '/user/resource/download?resource_name=' + encodeURIComponent(filename);
+            downloadingId.value = filename; // 用 filename 表示正在下载以避免重复触发
 
-            const ct = resp.headers.get('Content-Type') || '';
-            if (ct.includes('application/json')) {
-              const j = await resp.json();
-              if (j.url) {
-                window.open(j.url, '_blank');
-              } else {
-                alert('服务器返回 JSON，但未包含 url 字段');
-              }
-            } else {
-              const blob = await resp.blob();
-              const disp = resp.headers.get('Content-Disposition');
-              const fname = getFileNameFromDisposition(disp) || filename;
-              const objUrl = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = objUrl;
-              a.download = fname;
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-              URL.revokeObjectURL(objUrl);
-            }
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename; // 浏览器会自动识别 Content-Disposition
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
           } catch (e) {
-            alert('下载失败：' + e.message);
+            alert('下载失败：' + (e && e.message ? e.message : JSON.stringify(e)));
             console.error(e);
           } finally {
             downloadingId.value = null;
@@ -249,50 +235,45 @@
           file.value = f || null;
         }
 
-        function upload() {
-          if (!file.value) {
-            alert('请先选择文件');
-            return;
-          }
-
-          uploading.value = true;
-          uploadProgress.value = 0;
-
-          const fd = new FormData();
-          fd.append('file', file.value);
-
-          const xhr = new XMLHttpRequest();
-          xhr.open('POST', '/user/resource/upload', true);
-          xhr.withCredentials = true;
-
-          xhr.upload.onprogress = function(e) {
-            if (e.lengthComputable) {
-              uploadProgress.value = Math.round((e.loaded / e.total) * 100);
+        async function upload() {
+            if (!file.value) {
+                alert('请先选择文件');
+                return;
             }
-          };
 
-          xhr.onload = function() {
-            uploading.value = false;
+            uploading.value = true;
+            uploadProgress.value = 0;
+
+            const fd = new FormData();
+            fd.append('resource', file.value);
+            fd.append('resource_name', file.value.name); // <-- 这里加入 resource_name 参数
+
             try {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                try { JSON.parse(xhr.responseText); } catch (e) { /* ignore */ }
+                const resp = await axios.post('/user/resource/upload', fd, {
+                    withCredentials: true,
+                    onUploadProgress: function (e) {
+                        if (e.lengthComputable && e.total) {
+                            uploadProgress.value = Math.round((e.loaded / e.total) * 100);
+                        }
+                    }
+                });
+
                 alert('上传完成');
-                getAvailable();
-              } else {
-                alert('上传失败：HTTP ' + xhr.status);
-                console.error('upload error', xhr.responseText);
-              }
-            } catch (e) {
-              alert('上传后处理失败：' + e.message);
+                // 清理 file input
+                const input = document.getElementById('fileInput');
+                if (input) input.value = '';
+                file.value = null;
+
+                // 上传完成后刷新资源列表
+                await getAvailable();
+
+            } catch (err) {
+                alert('上传失败：' + (err && err.message ? err.message : JSON.stringify(err)));
+                console.error('upload error', err && err.response ? err.response.data : err);
+            } finally {
+                uploading.value = false;
+                uploadProgress.value = 0;
             }
-          };
-
-          xhr.onerror = function() {
-            uploading.value = false;
-            alert('上传请求出错');
-          };
-
-          xhr.send(fd);
         }
 
         onMounted(() => {
@@ -304,7 +285,7 @@
           resources, loading, getAvailable, formatSize,
           file, onFileChange, upload, uploading, uploadProgress,
           downloadingId, getAvailableInProgress, getAvailableExpireAt, GET_AVAILABLE_EXPIRE_MS,
-          _getRemainingSeconds, _isDownloadBlocked,
+          getRemainingSeconds, isDownloadBlocked,
           selectedIndex, selectRow, onSelect, downloadByFilename, downloadSelected
         };
       }

@@ -31,7 +31,7 @@ public class SpringSecurityConfigure {
         http
                 .authorizeExchange((authorize) -> authorize
                 .pathMatchers(
-                        "/api/**","error/**","/favicon.ico","/oauth2/**","/userinfo/**","/connect/**","/public/**","/login","/login/**"
+                        "/api/**","error/**","/favicon.ico","/oauth2/**","/userinfo/**","/connect/**","/public/**","/login","/login/**","/druid/**","/druid"
                 ).permitAll()
                 .anyExchange().authenticated()
         );
