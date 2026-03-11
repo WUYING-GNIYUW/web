@@ -35,7 +35,7 @@ public class ResourceController {
     @PostMapping("/upload")
     public ResponseEntity<Result<?>> uploadResource(
             @RequestParam(name = "resource_name") String resourceName,
-            @RequestParam(name = "file") MultipartFile file,
+            @RequestParam(name = "resource") MultipartFile file,
             Principal principal) throws IOException {
         return resourceServiceImpl.upload(resourceName, file, principal);
     }

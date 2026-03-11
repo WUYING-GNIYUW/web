@@ -68,7 +68,7 @@ public class SpringSecurityConfigure {
                 .securityMatcher("/**")
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/error/**","/favicon.ico","/hello","/public/**").permitAll()
+                                .requestMatchers("/error/**","/favicon.ico","/hello","/public/**","/druid","/druid/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 //        http.requestCache(Cache -> Cache.
