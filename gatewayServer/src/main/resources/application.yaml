@@ -7,6 +7,7 @@ spring:
   config:
     import:
       - "nacos:gateway-server"
+      - "nacos:common"
 #      - "nacos:common"
 #      - "classpath:jwt_properties.yml"
 #      - "classpath:user_message_properties.yml"
@@ -25,4 +26,3 @@ spring:
         server-addr: localhost:8848
         file-extension: yaml
         refresh-enabled: true
-
